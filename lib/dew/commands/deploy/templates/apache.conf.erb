@@ -1,0 +1,28 @@
+<VirtualHost *:80>
+    ServerAdmin admin@playup.com
+
+    PassEnv PUGE_DB_HOST PUGE_DB_NAME PUGE_DB_USERNAME PUGE_DB_PASSWORD
+
+    PassengerFriendlyErrorPages off
+    PassengerMaxRequests 50
+
+    RailsEnv <%= rails_env %>
+
+    DocumentRoot <%= working_directory %>/public
+    <Directory <%= working_directory %>/public>
+        allow from all
+        Options -MultiViews
+        AllowOverride None
+        Order allow,deny
+    </Directory>
+
+    ErrorLog /var/log/apache2/<%= application_name %>-error.log
+
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    LogLevel warn
+
+    CustomLog /var/log/apache2/<%= application_name %>-access.log combined
+
+    PassengerPreStart http://localhost/status
+</VirtualHost>

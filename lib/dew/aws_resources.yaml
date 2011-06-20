@@ -1,0 +1,122 @@
+---
+regions:
+  us-east-1: US East (Virginia)
+  us-west-1: US West (North California)
+  eu-west-1: EU West (Ireland)
+  ap-southeast-1: Asia Pacific (Singapore)
+  ap-northeast-1: Asia Pacific (Tokyo)
+
+instance_types:
+  m1.small:
+    memory: 1.7 GB
+    processor: 1 ECU
+    storage: 160 GB
+    platform: 32-bit
+    io_performance: Moderate
+
+  m1.large:
+    memory: 7.5 GB
+    processor: 4 ECUs
+    storage: 850 GB
+    platform: 64-bit
+    io_performance: High
+
+  m1.xlarge:
+    memory: 15 GB
+    processor: 8 ECUs
+    storage: 1,690 GB
+    platform: 64-bit
+    io_performance: High
+
+  t1.micro:
+    memory: 613MB
+    processor: Up to 2 ECUs
+    storage: EBS storage only
+    platform: 32-bit or 64-bit
+    io_performance: Low
+
+  m2.xlarge:
+    memory: 17.1 GB
+    processor: 6.5 ECUs
+    storage: 420 GB
+    platform: 64-bit
+    io_performance: Moderate
+
+  m2.2xlarge:
+    memory: 34.2 GB
+    processor: 13 ECUs
+    storage: 850 GB
+    platform: 64-bit
+    io_performance: High
+
+  m2.4xlarge:
+    memory: 68.4 GB
+    processor: 26 ECUs
+    storage: 1690 GB
+    platform: 64-bit
+    io_performance: High
+
+  c1.medium:
+    memory: 1.7 GB
+    processor: 5 ECUs
+    storage: 350 GB
+    platform: 32-bit
+    io_performance: Moderate
+
+  c1.xlarge:
+    memory: 7 GB
+    processor: 20 ECUs
+    storage: 1690 GB
+    platform: 64-bit
+    io_performance: High
+
+  cc1.4xlarge:
+    memory: 23 GB
+    processor: 33.5 ECUs
+    storage: 1690 GB
+    platform: 64-bit
+    io_performance: Very High
+
+  cg1.4xlarge:
+    memory: 22 GB
+    processor: 33.5 ECUs
+    storage: 1690 GB
+    platform: 64-bit
+    io_performance: Very High
+
+db_instance_types:
+  db.m1.small:
+    memory: 1.7 GB
+    processor: 1 ECU
+    platform: 64-bit
+    io_performance: Moderate
+
+  db.m1.large:
+    memory: 7.5 GB
+    processor: 4 ECUs
+    platform: 64-bit
+    io_performance: High
+
+  db.m1.xlarge:
+    memory: 15 GB
+    processor: 8 ECUs
+    platform: 64-bit
+    io_performance: High
+
+  db.m2.xlarge:
+    memory: 17.1 GB
+    processor: 6.5 ECU
+    platform: 64-bit
+    io_performance: High
+
+  db.m2.2xlarge:
+    memory: 34 GB
+    processor: 13 ECUs
+    platform: 64-bit
+    io_performance: High
+
+  db.m2.4xlarge:
+    memory: 68 GB
+    processor: 26 ECUs
+    platform: 64-bit
+    io_performance: High

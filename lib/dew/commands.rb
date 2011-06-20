@@ -1,0 +1,6 @@
+require 'dew/base_command'
+require 'dew/commands/ami'
+require 'dew/commands/deploy'
+require 'dew/commands/environments'
+require 'dew/commands/console'
+require 'dew/commands/tidy'

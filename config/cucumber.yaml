@@ -1,0 +1,4 @@
+default: features -t~@wip -t~@slow
+slow: features -t~@wip -t@slow
+wip: features -t@wip
+all: features -t~@wip

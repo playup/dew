@@ -1,0 +1,8 @@
+require 'inform'
+require 'dew/version'
+require 'dew/commands'
+require 'dew/models'
+require 'dew/controllers'
+require 'dew/cloud'
+require 'dew/view'
+require 'dew/password'
