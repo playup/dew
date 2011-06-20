@@ -1,0 +1,15 @@
+---
+instances:
+  amis:                           # http://uec-images.ubuntu.com/releases/10.10/release
+    ap-southeast-1: ami-0c423c5e  # https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#launchAmi=ami-0c423c5e
+    eu-west-1: ami-fb9ca98f       # https://console.aws.amazon.com/ec2/home?region=eu-west-1#launchAmi=ami-fb9ca98f
+    us-west-1: ami-ad7e2ee8       # https://console.aws.amazon.com/ec2/home?region=us-west-1#launchAmi=ami-ad7e2ee8
+  size: c1.medium
+  count: 2
+  security-group: default
+  keypair: devops 
+elb:
+  listener_ports:
+    - 80
+rds:
+  size: db.m1.small

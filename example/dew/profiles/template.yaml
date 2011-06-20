@@ -1,0 +1,14 @@
+# Template Profile YAML.  Use this to create a new Profile.
+# 
+# ---
+# instances:
+#   amis:                           # List of AMI id's for regions you might like to create environments
+#     ap-southeast-1: ami-dcfc858e  # An AMI entry *must* appear here for the region you wish to create accounts within
+#   size: m1.large                  # Size of EC2 to create.  More info http://aws.amazon.com/ec2/instance-types
+#   count: 2                        # The number of Server(s) to create
+#   keypair: devops                 # Amazon keypair to deploy onto new Server(s).  More info http://docs.amazonwebservices.com/AWSEC2/latest/UserGuide/index.html?generating-a-keypair.html
+# elb:                              # Optional Load Balancer section. More info http://aws.amazon.com/elasticloadbalancing
+#   listener_ports:                 # List of ports to 'balance' onto Server(s)
+#     - 80
+# rds:                              # Optional Database section
+#   size: db.m1.small               # Size of Database to create.  More info http://aws.amazon.com/rds
