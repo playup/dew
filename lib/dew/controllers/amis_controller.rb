@@ -26,10 +26,13 @@ class AMIsController
     environment.destroy
   end
 
+  def my_amis
+    my_amis = Cloud.compute.images.all.select { |x| x.owner_id == Cloud.account.aws_user_id }
+  end
+
   def index
     # Inform.info("AMIs:\n#{Cloud.compute.images.all('owner_id' => Cloud.account.aws_user_id)}")
     # /home/chris/.rvm/gems/ruby-1.9.2-p180@AWS/gems/excon-0.6.3/lib/excon/connection.rb:179:in `request': InvalidParameterValue => The filter 'owner_id' is invalid (Fog::Service::Error)
-    my_amis = Cloud.compute.images.all.select { |x| x.owner_id == Cloud.account.aws_user_id }
     keys = %w(name id state architecture kernel_id description)
     Inform.info(View.new('My AMIs', my_amis, keys).index)
   end

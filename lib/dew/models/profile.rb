@@ -1,4 +1,5 @@
 require 'yaml'
+require 'pathname'
 
 class Profile
 
@@ -8,8 +9,14 @@ class Profile
 
   AWS_RESOURCES = YAML.load(File.read(File.join(File.dirname(__FILE__), '..', 'aws_resources.yaml')))
 
+  DIR = Pathname.new(ENV['HOME']) + '.dew' + 'profiles'
+
+  def self.all
+    @all ||= Dir[DIR+'*.yaml'].collect { |f| Pathname(f).basename('.yaml').to_s }.sort.select { |name| name != 'template' }
+  end
+
   def self.read(profile_name)
-    file = File.read(File.join(ENV['HOME'], '.dew', 'profiles', "#{profile_name}.yaml"))
+    file = File.read(DIR + "#{profile_name}.yaml")
     yaml = YAML.load(file)
     profile = new(profile_name)
     if yaml['instances']
@@ -26,6 +33,19 @@ class Profile
       profile.rds_size = yaml['rds']['size']
     end
     profile
+  end
+
+  def self.write(profile_name, count, size, region, ami, keypair, security_group)
+    yaml = { 'instances' => { 'amis' => {} } }
+    yaml['instances']['amis'][region] = ami
+    yaml['instances']['size'] = size
+    yaml['instances']['count'] = count
+    yaml['instances']['security-group'] = security_group
+    yaml['instances']['keypair'] = keypair
+
+    file = File.open(DIR + "#{profile_name}.yaml", 'w')
+    file.write(yaml.to_yaml)
+    file.close
   end
 
   def has_elb?
@@ -53,6 +73,7 @@ class Profile
   def to_s
     db_instance_str = "%{memory} memory, %{processor} processor, %{platform} platform, %{io_performance} I/O performance"
     table { |t|
+      t << ['region', Cloud.region]
       t << [ "#{count} instance#{'s' if count > 1}", "#{size.inspect} (#{self.class.size_to_s(size)})"]
       t << ['disk image', ami.inspect]
       t << ['load balancer', "listener ports: #{elb_listener_ports.inspect}"] if has_elb?

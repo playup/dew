@@ -22,11 +22,13 @@ class EnvironmentsCommand < Clamp::Command
   subcommand "create", "Create a new environment" do
 
     option ['-f', '--force'], :flag, "Don't ask for confirmation before creating", :default => false
-    parameter "PROFILE", "Profile describing resources to be created", :attribute_name => 'profile_name'
+    option ['-p', '--profile'], "PROFILE", "Profile describing resources to be created", :attribute_name => 'profile_name'
     parameter "ENVIRONMENT_NAME", "Name of the environment"
 
     def execute
-      controller.create(environment_name, profile_name, :force => force?)
+      pn = profile_name
+      pn ||= controller.create_new_profile(Cloud.account_name)
+      controller.create(environment_name, pn, :force => force?)
     end
 
   end
