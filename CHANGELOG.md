@@ -4,6 +4,8 @@
 
 * Added --version
 * Make sure works with ruby 1.8.7
+* Add example/ directory
+* Update README.md
 
 ### v0.1.0
 

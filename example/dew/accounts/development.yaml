@@ -1,0 +1,7 @@
+---
+name: development
+description: Default 'dew' account
+aws:
+  user_id: 0000-0000-0000
+  access_key_id: XXXXXXXXXXXX 
+  secret_access_key: XXXXXXXXXX

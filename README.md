@@ -25,16 +25,12 @@ This code is Open Source, but some of it is still specific to PlayUp. Running `c
 
 ### Otherwise:
 
-#### 1. Create your development.yaml file
+#### 1. Copy over the example configuration and edit the default account file
 
-    $ mkdir -p ~/.dew/accounts
-    $ cat > ~/.dew/accounts/development.yaml
-    aws:
-      user_id: xxxx-xxxx-xxxx
-      access_key_id: YYYYYYYYYYYYYYYYYYYY
-      secret_access_key: ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+    $ cp -r `gem which dew | dirname`/../../example/dew ~/.dew
+    $ vi ~/.dew/accounts/development.yaml
     
-Replacing the `user_id`, `access_key_id` and `secret_access_key` with your AWS credentials.
+Replace the `user_id`, `access_key_id` and `secret_access_key` with your AWS credentials.
 
 #### 2. Install your keypair
 

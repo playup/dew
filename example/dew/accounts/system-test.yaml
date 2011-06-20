@@ -1,0 +1,10 @@
+--
+name: system-test
+description: System Test and other Development / Testing
+aws:
+  user_id: 6481-7153-3286
+  access_key_id: AKIAI57IM5CQTGKGLPSQ
+  secret_access_key: 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
+web:
+  username: niek@playup.com
+  password: titcidpfaws
