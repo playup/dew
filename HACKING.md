@@ -34,6 +34,10 @@ Run `rake spec:covered` to run the unit tests and check code coverage.
 
 There are three builds configured in Hudson: `AWS`, `AWS - Slow` and `AWS - Stress Test`. `AWS` should always be green. `AWS - Slow` is on best efforts and should not block commits. `AWS - Stress Test` is `AWS - Slow` run ten times against the `release` branch.
 
+### Warning!
+
+Running `cucumber` with a correctly configured `development.yaml` will drain whichever credit card you've attached to that account!
+
 ## Documentation
 
 See `TODO.md` for work that needs to be completed.
