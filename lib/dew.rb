@@ -1,4 +1,5 @@
 require 'inform'
+require 'highline/import'
 require 'dew/version'
 require 'dew/commands'
 require 'dew/models'
