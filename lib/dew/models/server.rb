@@ -4,6 +4,7 @@ class Server < FogModel
   TEN_SECONDS = 10
   SIXTY_SECONDS = 60
   TWO_MINUTES = 120
+  THREE_MINUTES = 180
   RUNNING_SERVER_STATES = %w{pending running}
 
   def self.create! ami, size, keypair, groups
@@ -37,7 +38,7 @@ class Server < FogModel
     Gofer::Host.new(public_ip_address, username, :key_data => [File.read(Cloud.keyfile_path(key_name))], :paranoid => false, :quiet => true)
   end
 
-  def wait_until_ready ssh_timeout=TWO_MINUTES
+  def wait_until_ready ssh_timeout=THREE_MINUTES
     super()
     Inform.debug("%{id} online at %{ip}, waiting for SSH connection...", :id => id, :ip => public_ip_address)
     wait_for_ssh ssh_timeout
