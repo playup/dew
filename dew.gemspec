@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency("geminabox")
 
   s.require_paths = ["lib"]
-  s.files         = Dir["lib/**/*", "README.md", "LICENSE"]
+  s.files         = Dir["lib/**/*", "README.md", "LICENSE", 'example/**/*']
   s.test_files    = Dir["Rakefile", "spec/**/*", "features/**/*", "config/cucumber.yaml"]
   s.executables   = ["dew"]
 end

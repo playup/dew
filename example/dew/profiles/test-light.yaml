@@ -1,0 +1,32 @@
+---
+instances:
+  # An AMI is an image file used as a template to create an instance.
+  #
+  # AMIs aren't shared between regions. You'll need to specify an AMI for each
+  # region you want to create your environment in. AMIs can be created
+  # with the script/ami.rb create command.
+  #
+  # These AMIs, however, are 32-bit Ubuntu 10.10 images from Canonical.
+  # See: http://uec-images.ubuntu.com/releases/10.10/release
+  amis:
+    ap-southeast-1: ami-0c423c5e
+    eu-west-1: ami-fb9ca98f
+    us-west-1: ami-ad7e2ee8
+
+  # Each instance is created with particular size. The size determines
+  # the architecture, CPU and RAM available to the instance.
+  #
+  # m1.small is a 32-bit, dual core instance with 1.7gb of RAM.
+  size: m1.small
+
+  # Create two instances
+  count: 2
+
+  #security-groups:
+  #  - default
+
+  keypair: devops
+
+elb:
+  listener_ports:
+    - 80

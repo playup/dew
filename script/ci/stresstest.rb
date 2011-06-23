@@ -18,9 +18,7 @@ def run_and_collate index, command
   outfile = run_dir.join('out.txt')
   system "#{command} > '#{outfile}' 2>&1"
   run_result = $?.exitstatus
-  command1 = "mv #{tmp_dir.to_s.inspect}/*.log #{run_dir.to_s.inspect}"   # Keep the cucumber output
-  puts command1
-  system command1
+  system "mv #{tmp_dir.to_s.inspect}/*.log #{run_dir.to_s.inspect}"   # Keep the cucumber output
   if run_result == 0
     outfile.rename(outfile.dirname + 'pass.txt'); outfile = outfile.dirname + 'pass.txt'
     puts "Run #{index} passed, see #{outfile}"
