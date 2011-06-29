@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.version     = Dew::VERSION
   s.platform    = Gem::Platform::RUBY
 
-  s.add_runtime_dependency("inform", "~> 0.0.1")
+  s.add_runtime_dependency("inform", "~> 0.0.4")
   s.add_runtime_dependency("clamp", "~> 0.2.0")
   s.add_runtime_dependency("fog", "~> 0.8.2")
   s.add_runtime_dependency("gofer", "~> 0.2.5")

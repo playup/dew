@@ -3,6 +3,7 @@
 ### v0.1.2
 
 * Bump up ssh timeout from 2 to 3 minutes.
+* Update inform gem and clean up output a bit
 
 ### v0.1.1
 
