@@ -3,6 +3,7 @@
 ### v0.1.3
 
 * `PUGE_DB_*` environment variables are now `DB_*` variables
+* Add --server-name method to passenger deploy mechanism to allow for multiple-site instances
 
 ### v0.1.2
 

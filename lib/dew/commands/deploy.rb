@@ -16,9 +16,13 @@ class DeployCommand < Clamp::Command
     parameter "ENVIRONMENT_NAME", "Environment to deploy into"
 
     option ['--rails-env'], 'ENVIRONMENT', "Rails environment to use", :default => 'production'
+    option ['--server-name'], 'SERVER_NAME', "Server name for Name-Based Virtual Host"
 
     def execute
       env = Environment.get(environment_name)
+      
+      db_managed = false
+      
       env.servers.each do |server|
         Inform.info("Working with server %{id} of %{l} servers", :id => server.id, :l => env.servers.length)
         env.remove_server_from_elb(server) if env.has_elb?
@@ -54,11 +58,16 @@ class DeployCommand < Clamp::Command
         end
 
         if ssh.exist?("#{application_name}/config/database.yml")
-          Inform.info("config/database.yml exists, creating and/or updating database") do
-            Inform.debug("Creating database") if initial
-            ssh.run cd_and_rvm + "rake db:create" if initial
-            Inform.debug("Updating database")
-            ssh.run cd_and_rvm + "rake db:migrate"
+          if !db_managed
+            Inform.info("config/database.yml exists, creating and/or updating database") do
+              if initial
+                Inform.debug("Creating database")
+                ssh.run cd_and_rvm + "rake db:create"
+              end
+              Inform.debug("Updating database")
+              ssh.run cd_and_rvm + "rake db:migrate"
+              db_managed = true # don't do database steps more than once
+            end
           end
         else
           Inform.info("No config/database.yml, skipping database step")
@@ -71,6 +80,7 @@ class DeployCommand < Clamp::Command
           end
           Inform.debug("Uploading passenger config")
           passenger_config = ERB.new(File.read template('apache.conf.erb')).result(OpenStruct.new(
+            :server_name => server_name,
             :rails_env => rails_env,
             :application_name => application_name,
             :working_directory => "/home/ubuntu/#{application_name}"
