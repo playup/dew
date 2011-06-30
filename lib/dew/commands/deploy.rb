@@ -17,7 +17,15 @@ class DeployCommand < Clamp::Command
 
     option ['--rails-env'], 'ENVIRONMENT', "Rails environment to use", :default => 'production'
     option ['--server-name'], 'SERVER_NAME', "Server name for Name-Based Virtual Host"
-    option ['--[no-]-passenger'], :flag, "Use passenger (just server public/* if unset)", :default => true, :attribute_name => :use_passenger
+    option ['--[no-]passenger'], :flag, "Use passenger (just server public/* if unset)", :default => true, :attribute_name => :use_passenger
+
+    def check_and_remove_rvmrc
+      if ssh.exist? "#{application_name}/.rvmrc"
+        Inform.debug(".rvmrc discovered - removing to avoid Passenger conflicts")
+        # XXX We need a company-wide standard or a better way of supporting .rvmrc stuffs
+        ssh.run "rm -f #{application_name}/.rvmrc"
+      end
+    end
 
     def execute
       env = Environment.get(environment_name)
@@ -28,7 +36,7 @@ class DeployCommand < Clamp::Command
         Inform.info("Working with server %{id} of %{l} servers", :id => server.id, :l => env.servers.length)
         env.remove_server_from_elb(server) if env.has_elb?
 
-        ssh = server.ssh
+        @ssh = server.ssh
         initial = !ssh.exist?(application_name)
 
         Inform.info("%{app} doesn't exist - initial install", :app => application_name) if initial
@@ -39,17 +47,22 @@ class DeployCommand < Clamp::Command
 
         Inform.info("Obtaining version %{v} of %{app}", :v => revision, :app => application_name) do
           if initial
-            Inform.debug("Writing out ~/.ssh/known_hosts file to allow github clone")
-            ssh.upload template('known_hosts'), ".ssh/known_hosts"
+            unless ssh.exist?('.ssh/known_hosts') && ssh.read('.ssh/known_hosts').include?(File.read(template('known_hosts')))
+              Inform.debug("Writing out ~/.ssh/known_hosts file to allow github clone")
+              ssh.upload template('known_hosts'), ".ssh/known_hosts"
+            end
             Inform.debug("Cloning %{app} in to ~/%{app}", :app => application_name)
             ssh.run "git clone git@github.com:playup/#{application_name}.git #{application_name}"
           else
             Inform.debug("Updating %{app} repository",  :app => application_name)
+            check_and_remove_rvmrc
             ssh.run "cd #{application_name}; git fetch -q"
           end
-
+          
+          check_and_remove_rvmrc
           Inform.debug("Checking out version %{version}", :version => revision)
           ssh.run "cd #{application_name} && git checkout -q -f origin/#{revision}"
+          check_and_remove_rvmrc
         end
 
         cd_and_rvm = "cd #{application_name} && . /usr/local/rvm/scripts/rvm && rvm use ruby-1.9.2 && RAILS_ENV=#{rails_env} "
@@ -75,8 +88,8 @@ class DeployCommand < Clamp::Command
         end
         
         build_script = 'script/build'
-        if ssh.exist? build_script
-          Inform.info("Build script discover at %{build_script}, running", :build_script => build_script) do
+        if ssh.exist? application_name + '/' + build_script
+          Inform.info("Build script discovered at %{build_script}, running", :build_script => build_script) do
             ssh.run cd_and_rvm + "bundle exec #{build_script}"
           end
         end
@@ -88,7 +101,7 @@ class DeployCommand < Clamp::Command
           end
           Inform.debug("Uploading passenger config")
           passenger_config = ERB.new(File.read template('apache.conf.erb')).result(OpenStruct.new(
-            :use_passenger => use_passenger,
+            :use_passenger => use_passenger?,
             :server_name => server_name,
             :rails_env => rails_env,
             :application_name => application_name,
@@ -105,7 +118,7 @@ class DeployCommand < Clamp::Command
           ssh.run "sudo apache2ctl restart"
         end
 
-        unless server_name || !use_passenger
+        unless server_name || !use_passenger?
           status_url = "http://#{server.public_ip_address}/status"
           Inform.info("Checking status URL at %{u}", :u => status_url) do
             response = JSON.parse(open(status_url).read)
@@ -118,6 +131,12 @@ class DeployCommand < Clamp::Command
         end
         env.add_server_to_elb(server) if env.has_elb?
       end
+    end
+    
+    private
+    
+    def ssh
+      @ssh
     end
 
   end
