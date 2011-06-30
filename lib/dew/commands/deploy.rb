@@ -19,6 +19,14 @@ class DeployCommand < Clamp::Command
     option ['--server-name'], 'SERVER_NAME', "Server name for Name-Based Virtual Host"
     option ['--[no-]-passenger'], :flag, "Use passenger (just server public/* if unset)", :default => true, :attribute_name => :use_passenger
 
+    def check_and_remove_rvmrc
+      if ssh.exist? "#{application_name}/.rvmrc"
+        Inform.debug(".rvmrc discovered - removing to avoid Passenger conflicts")
+        # XXX We need a company-wide standard or a better way of supporting .rvmrc stuffs
+        ssh.run "rm -f #{application_name}/.rvmrc"
+      end
+    end
+
     def execute
       env = Environment.get(environment_name)
       
@@ -28,7 +36,7 @@ class DeployCommand < Clamp::Command
         Inform.info("Working with server %{id} of %{l} servers", :id => server.id, :l => env.servers.length)
         env.remove_server_from_elb(server) if env.has_elb?
 
-        ssh = server.ssh
+        @ssh = server.ssh
         initial = !ssh.exist?(application_name)
 
         Inform.info("%{app} doesn't exist - initial install", :app => application_name) if initial
@@ -47,9 +55,11 @@ class DeployCommand < Clamp::Command
             Inform.debug("Updating %{app} repository",  :app => application_name)
             ssh.run "cd #{application_name}; git fetch -q"
           end
-
+          
+          check_and_remove_rvmrc
           Inform.debug("Checking out version %{version}", :version => revision)
           ssh.run "cd #{application_name} && git checkout -q -f origin/#{revision}"
+          check_and_remove_rvmrc
         end
 
         cd_and_rvm = "cd #{application_name} && . /usr/local/rvm/scripts/rvm && rvm use ruby-1.9.2 && RAILS_ENV=#{rails_env} "
@@ -118,6 +128,12 @@ class DeployCommand < Clamp::Command
         end
         env.add_server_to_elb(server) if env.has_elb?
       end
+    end
+    
+    private
+    
+    def ssh
+      @ssh
     end
 
   end
