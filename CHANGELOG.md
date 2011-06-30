@@ -4,6 +4,8 @@
 
 * `PUGE_DB_*` environment variables are now `DB_*` variables
 * Add --server-name method to passenger deploy mechanism to allow for multiple-site instances
+* Add --no-passenger hack to deploy static content in a passenger-like way
+* Add check for build script in script/build
 
 ### v0.1.2
 

@@ -3,17 +3,21 @@
 
     <% if server_name %>
       ServerName <%= server_name %>
-      PassengerPreStart http://<%= server_name %>/status
-    <% else %>
-      PassengerPreStart http://localhost/status
     <% end %>
     
-    PassEnv DB_HOST DB_NAME DB_USERNAME DB_PASSWORD
+    <% if use_passenger %>
+      PassEnv DB_HOST DB_NAME DB_USERNAME DB_PASSWORD
 
-    PassengerFriendlyErrorPages off
-    PassengerMaxRequests 50
+      PassengerFriendlyErrorPages off
+      PassengerMaxRequests 50
 
-    RailsEnv <%= rails_env %>
+      RailsEnv <%= rails_env %>
+      <% if server_name %>
+        PassengerPreStart http://<%= server_name %>/status
+      <% else %>
+        PassengerPreStart http://localhost/status
+      <% end %>
+    <% end %>
 
     DocumentRoot <%= working_directory %>/public
     <Directory <%= working_directory %>/public>

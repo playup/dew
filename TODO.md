@@ -5,6 +5,7 @@
  * Figure out a better way to deal with NameVirtualHost in deployment
  * Fix origin/<branch> hack in deploy
  * Don't assume that we're grabbing passenger git repos from playup: configure in .dew/config instead
+ * `--no-passenger` on `deploy passenger` is a hack, rework
  
 ## 2011-06-27
 

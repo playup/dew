@@ -17,15 +17,8 @@ class DeployCommand < Clamp::Command
 
     option ['--rails-env'], 'ENVIRONMENT', "Rails environment to use", :default => 'production'
     option ['--server-name'], 'SERVER_NAME', "Server name for Name-Based Virtual Host"
+    option ['--[no-]-passenger'], :flag, "Use passenger (just server public/* if unset)", :default => true, :attribute_name => :use_passenger
 
-    def check_and_remove_rvmrc
-      if ssh.exist? "#{application_name}/.rvmrc"
-        Inform.debug(".rvmrc discovered - removing to avoid Passenger conflicts")
-        # XXX We need a company-wide standard or a better way of supporting .rvmrc stuffs
-        ssh.run "rm -f #{application_name}/.rvmrc"
-      end
-    end
-    
     def execute
       env = Environment.get(environment_name)
       
@@ -35,7 +28,7 @@ class DeployCommand < Clamp::Command
         Inform.info("Working with server %{id} of %{l} servers", :id => server.id, :l => env.servers.length)
         env.remove_server_from_elb(server) if env.has_elb?
 
-        @ssh = server.ssh
+        ssh = server.ssh
         initial = !ssh.exist?(application_name)
 
         Inform.info("%{app} doesn't exist - initial install", :app => application_name) if initial
@@ -55,10 +48,8 @@ class DeployCommand < Clamp::Command
             ssh.run "cd #{application_name}; git fetch -q"
           end
 
-          check_and_remove_rvmrc
           Inform.debug("Checking out version %{version}", :version => revision)
           ssh.run "cd #{application_name} && git checkout -q -f origin/#{revision}"
-          check_and_remove_rvmrc
         end
 
         cd_and_rvm = "cd #{application_name} && . /usr/local/rvm/scripts/rvm && rvm use ruby-1.9.2 && RAILS_ENV=#{rails_env} "
@@ -72,24 +63,32 @@ class DeployCommand < Clamp::Command
             Inform.info("config/database.yml exists, creating and/or updating database") do
               if initial
                 Inform.debug("Creating database")
-                ssh.run cd_and_rvm + "bundle exec rake db:create"
+                ssh.run cd_and_rvm + "rake db:create"
               end
               Inform.debug("Updating database")
-              ssh.run cd_and_rvm + "bundle exec rake db:migrate"
+              ssh.run cd_and_rvm + "rake db:migrate"
               db_managed = true # don't do database steps more than once
             end
           end
         else
           Inform.info("No config/database.yml, skipping database step")
         end
-
-        Inform.info("Starting application with passenger") do
+        
+        build_script = 'script/build'
+        if ssh.exist? build_script
+          Inform.info("Build script discover at %{build_script}, running", :build_script => build_script) do
+            ssh.run cd_and_rvm + "bundle exec #{build_script}"
+          end
+        end
+          
+        Inform.info("Starting application") do
           if ssh.exist?('/etc/apache2/sites-enabled/000-default')
             Inform.debug("Disabling default apache site")
             ssh.run "sudo a2dissite default"
           end
           Inform.debug("Uploading passenger config")
           passenger_config = ERB.new(File.read template('apache.conf.erb')).result(OpenStruct.new(
+            :use_passenger => use_passenger,
             :server_name => server_name,
             :rails_env => rails_env,
             :application_name => application_name,
@@ -99,14 +98,14 @@ class DeployCommand < Clamp::Command
           ssh.run "sudo cp /tmp/apache.conf /etc/apache2/sites-available/#{application_name}"
           ssh.run "sudo chmod 0644 /etc/apache2/sites-available/#{application_name}" # yeah, I don't know why it gets written as 0600
           unless ssh.exist?('/etc/apache2/sites-enabled/#{application_name}')
-            Inform.debug("Enabling passenger site in apache")
+            Inform.debug("Enabling site in apache")
             ssh.run "sudo a2ensite #{application_name}"
           end
           Inform.debug("Restarting apache")
           ssh.run "sudo apache2ctl restart"
         end
 
-        unless server_name
+        unless server_name || !use_passenger
           status_url = "http://#{server.public_ip_address}/status"
           Inform.info("Checking status URL at %{u}", :u => status_url) do
             response = JSON.parse(open(status_url).read)
@@ -121,11 +120,6 @@ class DeployCommand < Clamp::Command
       end
     end
 
-    private
-    
-    def ssh
-      @ssh
-    end
   end
 
   subcommand 'puge', "Deploy PUGE" do
