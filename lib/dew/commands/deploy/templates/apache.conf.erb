@@ -1,6 +1,13 @@
 <VirtualHost *:80>
     ServerAdmin admin@playup.com
 
+    <% if server_name %>
+      ServerName <%= server_name %>
+      PassengerPreStart http://<%= server_name %>/status
+    <% else %>
+      PassengerPreStart http://localhost/status
+    <% end %>
+    
     PassEnv DB_HOST DB_NAME DB_USERNAME DB_PASSWORD
 
     PassengerFriendlyErrorPages off
@@ -24,5 +31,4 @@
 
     CustomLog /var/log/apache2/<%= application_name %>-access.log combined
 
-    PassengerPreStart http://localhost/status
 </VirtualHost>

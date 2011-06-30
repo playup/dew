@@ -1,5 +1,11 @@
 # TODO
 
+## 2011-06-30
+
+ * Figure out a better way to deal with NameVirtualHost in deployment
+ * Fix origin/<branch> hack in deploy
+ * Don't assume that we're grabbing passenger git repos from playup: configure in .dew/config instead
+ 
 ## 2011-06-27
 
  * Add option to print ssh .config credentials as well as cli credentials
