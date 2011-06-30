@@ -96,12 +96,16 @@ class DeployCommand < Clamp::Command
           ssh.run "sudo apache2ctl restart"
         end
 
-        status_url = "http://#{server.public_ip_address}/status"
-        Inform.info("Checking status URL at %{u}", :u => status_url) do
-          response = JSON.parse(open(status_url).read)
-          unless response.include?('status') && response['status'] == 'OK'
-            raise "Did not receive an OK status response."
+        unless server_name
+          status_url = "http://#{server.public_ip_address}/status"
+          Inform.info("Checking status URL at %{u}", :u => status_url) do
+            response = JSON.parse(open(status_url).read)
+            unless response.include?('status') && response['status'] == 'OK'
+              raise "Did not receive an OK status response."
+            end
           end
+        else
+          Inform.warning "Skipping health check as we don't yet support forcing server_name on HTTP"
         end
         env.add_server_to_elb(server) if env.has_elb?
       end
