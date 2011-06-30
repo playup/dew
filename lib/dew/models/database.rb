@@ -22,10 +22,10 @@ class Database < FogModel
   
   def db_environment_file password
     <<-EOF
-PUGE_DB_HOST=#{fog_object.endpoint['Address']}
-PUGE_DB_NAME=#{id}
-PUGE_DB_USERNAME=#{master_username}
-PUGE_DB_PASSWORD=#{password}
+DB_HOST=#{fog_object.endpoint['Address']}
+DB_NAME=#{id}
+DB_USERNAME=#{master_username}
+DB_PASSWORD=#{password}
     EOF
   end
   

@@ -84,18 +84,18 @@ end
 Then /^PUGE database environment variables should be set on each server to match the created RDS$/ do
   environment.servers.each do |server|
     ssh = server.ssh
-    %w{PUGE_DB_NAME PUGE_DB_USERNAME PUGE_DB_PASSWORD}.each do |var|
+    %w{DB_NAME DB_USERNAME DB_PASSWORD}.each do |var|
       ssh.run("echo $#{var}").chomp.length.should_not == 0
     end
-    ssh.run("echo $PUGE_DB_HOST").chomp.should == environment.database.public_address
+    ssh.run("echo $DB_HOST").chomp.should == environment.database.public_address
   end
 end
 
 Then /^I should be able to connect to the RDS$/ do
   environment.servers.each do |server|
     ssh = server.ssh
-    #host.run("nc -w 1 $PUGE_DB_HOST 3306 > /dev/null 2>&1 ; echo $?").chomp.should == "0"
+    #host.run("nc -w 1 $DB_HOST 3306 > /dev/null 2>&1 ; echo $?").chomp.should == "0"
     ssh.run("sudo apt-get install -y mysql-client", :quiet_stderr => true)
-    ssh.run("echo show databases | mysql -u$PUGE_DB_USERNAME -p$PUGE_DB_PASSWORD -h$PUGE_DB_HOST").chomp.length.should_not == 0
+    ssh.run("echo show databases | mysql -u$DB_USERNAME -p$DB_PASSWORD -h$DB_HOST").chomp.length.should_not == 0
   end
 end

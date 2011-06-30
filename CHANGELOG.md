@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.1.3
+
+* `PUGE_DB_*` environment variables are now `DB_*` variables
+
 ### v0.1.2
 
 * Bump up ssh timeout from 2 to 3 minutes.
