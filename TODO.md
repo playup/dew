@@ -1,5 +1,9 @@
 # TODO
 
+## 2011-06-27
+
+ * Add option to print ssh .config credentials as well as cli credentials
+
 ## 2011-06-14
 
 * Reduce code duplication in `Inform`, allow debug/warning messages to support blocks

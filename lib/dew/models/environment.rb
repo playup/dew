@@ -36,9 +36,9 @@ class Environment
     (1..profile.count).each do
       environment.add_server(profile.ami, profile.size, profile.keypair, profile.security_groups)
     end
-
+  
     environment.add_elb(profile.elb_listener_ports) if profile.has_elb?
-
+  
     environment.wait_until_ready
 
     environment.configure_servers_for_database password if profile.has_rds?
@@ -150,7 +150,7 @@ class Environment
         if ip_permissions.flatten.empty?
           Inform.warning "Server %{id} has no ip_permissions in its security groups %{security_group_names}", :id => server.id, :security_group_names => server.groups.inspect
         else
-          Inform.debug "Trying to connect to %{id} using ip_permissions %{ip_permissions}", :id => server.id, :ip_permissions => ip_permissions
+          Inform.debug "Trying to connect to %{id}", :id => server.id
           server.wait_until_ready
         end
       end

@@ -9,4 +9,5 @@ rvm ruby-1.9.2
 bundle install
 
 export AWS_DEBUG=1
+time bin/dew tidy
 time script/ci/stresstest.rb cucumber --profile=all

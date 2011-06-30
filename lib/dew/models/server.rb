@@ -123,7 +123,7 @@ class Server < FogModel
         success = true
       rescue => e
         time_spent = Time.now - start_time
-        Inform.debug("Exception: %{m} (%{c}), in block %{block} after %{time_spent}s (retrying until %{timeout}s)...", :c => e.class.to_s, :m => e.message, :block => block, :time_spent => time_spent.to_i, :timeout => timeout)
+        Inform.debug("Exception: %{m} (%{c}) after %{time_spent}s (retrying until %{timeout}s)...", :c => e.class.to_s, :m => e.message, :time_spent => time_spent.to_i, :timeout => timeout)
         sleep 1
         last_exception = e
       end

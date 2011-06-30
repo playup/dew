@@ -44,10 +44,10 @@ describe Database do
     describe "db_environment_file" do
       it "should return the contents of a file to use as /etc/environment that can be used to connct to this database" do
         data = @database.db_environment_file('password')
-        data.should =~ /PUGE_DB_NAME=#{id}/
-        data.should =~ /PUGE_DB_USERNAME=root/
-        data.should =~ /PUGE_DB_PASSWORD=password/
-        data.should =~ /PUGE_DB_HOST=127.0.0.1/
+        data.should =~ /DB_NAME=#{id}/
+        data.should =~ /DB_USERNAME=root/
+        data.should =~ /DB_PASSWORD=password/
+        data.should =~ /DB_HOST=127.0.0.1/
       end
     end
     describe :public_address do
