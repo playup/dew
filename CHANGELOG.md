@@ -6,6 +6,7 @@
 * Add --server-name method to passenger deploy mechanism to allow for multiple-site instances
 * Add --no-passenger hack to deploy static content in a passenger-like way
 * Add check for build script in script/build
+* Add --ssl-certificate & --ssl-private-key options to passenger deploy
 
 ### v0.1.2
 

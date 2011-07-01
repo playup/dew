@@ -17,6 +17,8 @@ class DeployCommand < Clamp::Command
 
     option ['--rails-env'], 'ENVIRONMENT', "Rails environment to use", :default => 'production'
     option ['--server-name'], 'SERVER_NAME', "Server name for Name-Based Virtual Host"
+    option ['--ssl-certificate'], 'FILE', "SSL Certificate file"
+    option ['--ssl-private-key'], 'FILE', "SSL Private Key file"
     option ['--[no-]passenger'], :flag, "Use passenger (just server public/* if unset)", :default => true, :attribute_name => :use_passenger
 
     def check_and_remove_rvmrc
@@ -27,7 +29,19 @@ class DeployCommand < Clamp::Command
       end
     end
 
+    def use_ssl?
+      ssl_certificate || ssl_private_key
+    end
+    
     def execute
+      if use_ssl?
+        raise "--server-name required if SSL credentials supplied" unless server_name
+        raise "--ssl-private-key required if SSL certificate supplied" unless ssl_private_key
+        raise "--ssl-private-key file #{ssl_private_key} does not exist" unless File.exist?(ssl_private_key)
+        raise "--ssl-certificate required if SSL private key supplied" unless ssl_certificate
+        raise "--ssl-certificate file #{ssl_certificate} does not exist" unless File.exist?(ssl_certificate)
+      end
+       
       env = Environment.get(environment_name)
       
       db_managed = false
@@ -94,6 +108,16 @@ class DeployCommand < Clamp::Command
           end
         end
           
+        if use_ssl?
+          Inform.info "Uploading SSL Certificate & Private Key" do
+            ssh.run "sudo mkdir -p /etc/apache2/certs" unless ssh.exist?("/etc/apache2/certs")
+            ssh.upload ssl_certificate, "/tmp/sslcert"
+            ssh.run "sudo mv -f /tmp/sslcert /etc/apache2/certs/#{application_name}.crt"
+            ssh.upload ssl_private_key, "/tmp/sslkey"
+            ssh.run "sudo mv -f /tmp/sslkey /etc/apache2/certs/#{application_name}.key"
+          end
+        end
+        
         Inform.info("Starting application") do
           if ssh.exist?('/etc/apache2/sites-enabled/000-default')
             Inform.debug("Disabling default apache site")
@@ -101,7 +125,8 @@ class DeployCommand < Clamp::Command
           end
           Inform.debug("Uploading passenger config")
           passenger_config = ERB.new(File.read template('apache.conf.erb')).result(OpenStruct.new(
-            :use_passenger => use_passenger?,
+            :use_passenger? => use_passenger?,
+            :use_ssl? => use_ssl?,
             :server_name => server_name,
             :rails_env => rails_env,
             :application_name => application_name,
