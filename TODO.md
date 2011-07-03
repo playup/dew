@@ -1,7 +1,13 @@
 # TODO
 
-## 2011-06-30
+## 2011-07-03
 
+ * Add support for automated DNS setup (eg, provisioning an environment will set A records)
+ * Add .dew/config support
+ * Finish writing HOWTOs in README.md
+ * Migrate Ash's documentation (formerly in doc/*)
+
+## 2011-06-30
  * Figure out a better way to deal with NameVirtualHost in deployment
  * Fix origin/<branch> hack in deploy
  * Don't assume that we're grabbing passenger git repos from playup: configure in .dew/config instead
