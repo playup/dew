@@ -63,6 +63,28 @@ And perform a basic self-test:
 
 ## Creating a Simple Environment
 
+Assuming that you've created (or downloaded) your `~/.dew` directory, you should be ready to create a simple environment.
+
+First, take a look at `~/.dew/profiles/test-light.yaml`. `test-light` is the profile we'll be using to create our environment. You'll see that it contains:
+
+  * AMIs for each region
+  * two instances, using the 'default' keypair and the 'default' security group
+  * an elastic load balancer (elb) with a listener on port 80
+  
+If your keypair isn't called 'default', you'll need to edit this file and change it.
+
+Now, run:
+
+    dew -v environments create test-light my-first-environment
+    
+You'll be shown a summary of the environment that you're about to create. Type 'y' to confirm its creation and watch as it's created.
+
+Once complete you can run the following commands to interact with your environment:
+
+    dew environments ssh my-first-environment
+    dew environments show my-first-environment
+    dew environments destroy my-first-environment
+
 ## Creating an AMI for a new Environment
 
 ## Deploying to an Environment

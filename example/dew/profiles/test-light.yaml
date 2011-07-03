@@ -25,7 +25,7 @@ instances:
   #security-groups:
   #  - default
 
-  keypair: devops
+  keypair: default
 
 elb:
   listener_ports:

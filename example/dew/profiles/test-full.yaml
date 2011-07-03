@@ -7,7 +7,7 @@ instances:
   size: c1.medium
   count: 2
   security-group: default
-  keypair: devops 
+  keypair: default 
 elb:
   listener_ports:
     - 80
