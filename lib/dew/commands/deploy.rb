@@ -90,10 +90,10 @@ class DeployCommand < Clamp::Command
             Inform.info("config/database.yml exists, creating and/or updating database") do
               if initial
                 Inform.debug("Creating database")
-                ssh.run cd_and_rvm + "rake db:create"
+                ssh.run cd_and_rvm + "bundle exec rake db:create"
               end
               Inform.debug("Updating database")
-              ssh.run cd_and_rvm + "rake db:migrate"
+              ssh.run cd_and_rvm + "bundle exec rake db:migrate"
               db_managed = true # don't do database steps more than once
             end
           end

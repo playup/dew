@@ -1,14 +1,10 @@
-<% if use_ssl? %>
-  <VirtualHost *:443>
-<% else %>
-  <VirtualHost *:80>
-<% end %>
+<VirtualHost *:80>
     ServerAdmin admin@playup.com
 
     <% if server_name %>
       ServerName <%= server_name %>
     <% end %>
-    
+
     <% if use_passenger? %>
       PassEnv DB_HOST DB_NAME DB_USERNAME DB_PASSWORD
 
@@ -23,12 +19,48 @@
       <% end %>
     <% end %>
 
-    <% if use_ssl? %>
+    DocumentRoot <%= working_directory %>/public
+    <Directory <%= working_directory %>/public>
+        allow from all
+        Options -MultiViews
+        AllowOverride None
+        Order allow,deny
+    </Directory>
+
+    ErrorLog /var/log/apache2/<%= application_name %>-error.log
+
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    LogLevel warn
+
+    CustomLog /var/log/apache2/<%= application_name %>-access.log combined
+</VirtualHost>
+<% if use_ssl? %>
+<VirtualHost *:443>
+    ServerAdmin admin@playup.com
+
+    <% if server_name %>
+      ServerName <%= server_name %>
+    <% end %>
+
+    <% if use_passenger? %>
+      PassEnv DB_HOST DB_NAME DB_USERNAME DB_PASSWORD
+
+      PassengerFriendlyErrorPages off
+      PassengerMaxRequests 50
+
+      RailsEnv <%= rails_env %>
+      <% if server_name %>
+        PassengerPreStart http://<%= server_name %>/status
+      <% else %>
+        PassengerPreStart http://localhost/status
+      <% end %>
+    <% end %>
+
       SSLEngine On
       SSLCertificateFile /etc/apache2/certs/<%= application_name %>.crt
       SSLCertificateKeyFile /etc/apache2/certs/<%= application_name %>.key
-    <% end %>
-    
+
     DocumentRoot <%= working_directory %>/public
     <Directory <%= working_directory %>/public>
         allow from all
@@ -46,4 +78,5 @@
     CustomLog /var/log/apache2/<%= application_name %>-access.log combined
 
 </VirtualHost>
+<% end %>
 
