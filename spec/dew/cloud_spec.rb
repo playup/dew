@@ -7,8 +7,8 @@ describe :Cloud do
   let (:profile_name) { 'test-light' }
 
   let (:aws_credentials) { {:aws_access_key_id => '1234', :aws_secret_access_key => '5678', :region => region} }
-  let (:root_aws_credentials) { aws_credentials.merge(:provider => 'AWS')}
-  let (:account) { double('Account', aws_credentials) }
+  let (:root_aws_credentials) { aws_credentials.merge(:provider => 'AWS') }
+  let (:account) { double('Account', aws_credentials.merge(:has_dns? => false)) }
   let (:profile) { double('Profile') }
   
   context "after connect is called" do
@@ -86,5 +86,19 @@ describe :Cloud do
       end
     end
     
+    it { Cloud.has_dns?.should be_false }
+    
+    context "with DNS credentials in the account" do
+      before :each do
+        account.stub(:has_dns? => true)
+      end
+      it { Cloud.has_dns?.should be_true }
+      
+      it "should provide an OpenSRS DNS handle" do
+        Cloud.account.should_receive(:opensrs_credentials).and_return('opensrs creds')
+        OpenSRS::Server.should_receive(:new).with('opensrs creds').and_return('server')
+        Cloud.dns.should == 'server'
+      end
+    end
   end
 end
