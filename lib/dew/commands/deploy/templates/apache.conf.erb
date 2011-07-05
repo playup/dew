@@ -34,8 +34,21 @@
     LogLevel warn
 
     CustomLog /var/log/apache2/<%= application_name %>-access.log combined
+
+    <% if use_gamej_proxy? %>
+    <Location /api>
+        Order allow,deny
+        Allow from all
+    </Location>
+
+    # Proxy off to the engine
+	ProxyRequests Off
+	ProxyPass /api/ http://api.playupgamej.com/
+	ProxyPassReverse /api/ http://fb.playupgamej.com/
+    <% end %>
 </VirtualHost>
 <% if use_ssl? %>
+NameVirtualHost *:443
 <VirtualHost *:443>
     ServerAdmin admin@playup.com
 
@@ -77,6 +90,17 @@
 
     CustomLog /var/log/apache2/<%= application_name %>-access.log combined
 
+    <% if use_gamej_proxy? %>
+    <Location /api>
+        Order allow,deny
+        Allow from all
+    </Location>
+        
+    # Proxy off to the engine
+	SSLProxyEngine on
+    ProxyRequests Off
+	ProxyPass /api/ https://api.playupgamej.com/
+	ProxyPassReverse /api/ https://fb.playupgamej.com/
+    <% end %>
 </VirtualHost>
 <% end %>
-
