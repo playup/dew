@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.1.4
+
+* Added `dew environments run` command to run scripts or commands on instances in the environment
+
 ### v0.1.3
 
 * `PUGE_DB_*` environment variables are now `DB_*` variables
