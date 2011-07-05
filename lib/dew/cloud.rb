@@ -1,3 +1,5 @@
+require 'opensrs'
+
 class Cloud
 
   attr_reader :region, :account_name, :profile_name
@@ -63,6 +65,14 @@ class Cloud
   def keyfile_path(key_name)
     account_dir = File.join(ENV['HOME'], '.dew','accounts')
     File.join(account_dir, 'keys', account_name, region, "#{key_name}.pem")
+  end
+  
+  def has_dns?
+    account.has_dns?
+  end
+  
+  def dns
+    @dns ||= OpenSRS::Server.new(account.opensrs_credentials)
   end
 
   private

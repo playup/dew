@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency("gofer", "~> 0.2.5")
   s.add_runtime_dependency("highline", "~> 1.6.2")
   s.add_runtime_dependency("terminal-table", "~> 1.4.2")
+  s.add_runtime_dependency("opensrs")
   s.add_runtime_dependency("nokogiri")
 
   s.add_development_dependency("rake", "~> 0.8.7")

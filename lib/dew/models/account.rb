@@ -23,6 +23,26 @@ class Account
   def aws_user_id
     @yaml['aws']['user_id'].gsub('-', '')
   end
+  
+  def has_dns?
+    @yaml.include?('dns')
+  end
+  
+  def dns_username
+    @yaml['dns']['username']
+  end
+  
+  def dns_password
+    @yaml['dns']['password']
+  end
+  
+  def dns_domain
+    @yaml['dns']['domain']
+  end
+  
+  def dns_prefix
+    @yaml['dns']['prefix']
+  end
 
   def initialize(yaml)
     @yaml = yaml

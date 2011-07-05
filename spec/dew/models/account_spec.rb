@@ -12,26 +12,43 @@ describe Account do
 
   describe "parsing yaml" do
     before :each do
-      yaml =
+      File.stub(:read).and_return(yaml)
+    end
+
+    subject { Account.read('foo') }
+
+    describe "with an aws section" do
+      let (:yaml) {
         "aws:
           user_id: 9999-3333-2222
           access_key_id: foo
           secret_access_key: bar"
+      }
 
-      File.stub(:read).and_return(yaml)
-      @account = Account.read('foo')
+      it "should have a user_id stripped of dashes" do
+        subject.aws_user_id.should == '999933332222'
+      end
+
+      it { subject.aws_access_key_id.should == 'foo' }
+      it { subject.aws_secret_access_key.should == 'bar' }
+      it { subject.has_dns?.should be_false }
     end
 
-    it "should have a user_id stripped of dashes" do
-      @account.aws_user_id.should == '999933332222'
-    end
-
-    it "should have an aws access key id" do
-      @account.aws_access_key_id.should == 'foo'
-    end
-
-    it "should have an aws secret access key" do
-      @account.aws_secret_access_key.should == 'bar'
+    describe "with a DNS section" do
+      let (:yaml) {
+        "
+        dns:
+          username: bob
+          domain: mydomain.com
+          password: steve
+          prefix: env
+        "
+      }
+      it { subject.has_dns?.should be_true }
+      it { subject.dns_username.should == 'bob' }
+      it { subject.dns_domain.should == 'mydomain.com' }
+      it { subject.dns_password.should == 'steve' }
+      it { subject.dns_prefix.should == 'env' }
     end
   end
   
@@ -43,5 +60,6 @@ describe Account do
       Account.user_ids.sort.should == ['id1', 'id2']
     end
   end
+  
 
 end
