@@ -88,6 +88,34 @@ class EnvironmentsCommand < Clamp::Command
       end
     end
   end
+  
+  subcommand "run", "Run a script or command on each instance in the environment" do
+    parameter "ENVIRONMENT_NAME", "Name of the environment"
+    option ['-s', '--script'], "FILENAME", "Script to run on each instance"
+    option ['-c', '--command'], "COMMAND", "Command to run on each instance"
+    
+    def execute
+      raise "Please supply either -s or -c" unless script or command
+      
+      env = Environment.get(environment_name)
+      
+      Inform.info("Running on %{l} servers", :l => env.servers.length) do
+        env.servers.each do |server|
+          start = Time.now
+          ssh = server.ssh
+          if script
+            ssh.upload(script, '/tmp/script')
+            ssh.run("chmod +x /tmp/script")
+            ssh.run("/tmp/script", :quiet => false)
+            ssh.run("rm /tmp/script")
+          else
+            ssh.run(command, :quiet => false)
+          end
+          Inform.debug("%{s} took %{time} seconds", :s => server.id, :time => (Time.now - start))
+        end
+      end
+    end
+  end
 
   subcommand "destroy", "Destroy an existing environment" do
 
