@@ -20,6 +20,7 @@ class DeployCommand < Clamp::Command
     option ['--ssl-certificate'], 'FILE', "SSL Certificate file"
     option ['--ssl-private-key'], 'FILE', "SSL Private Key file"
     option ['--[no-]passenger'], :flag, "Use passenger (just server public/* if unset)", :default => true, :attribute_name => :use_passenger
+    option ['--gamej-proxy'], 'GAMEJ_PROXY', "GameJ Reverse Proxy"
 
     def check_and_remove_rvmrc
       if ssh.exist? "#{application_name}/.rvmrc"
@@ -75,14 +76,14 @@ class DeployCommand < Clamp::Command
           
           check_and_remove_rvmrc
           Inform.debug("Checking out version %{version}", :version => revision)
-          ssh.run "cd #{application_name} && git checkout -q -f origin/#{revision}"
+          ssh.run "cd #{application_name} && git checkout -q -f #{revision}"
           check_and_remove_rvmrc
         end
 
         cd_and_rvm = "cd #{application_name} && . /usr/local/rvm/scripts/rvm && rvm use ruby-1.9.2 && RAILS_ENV=#{rails_env} "
 
         Inform.info("Updating/installing gems") do
-          ssh.run cd_and_rvm + "bundle install"
+          ssh.run cd_and_rvm + "bundle install --without development"
         end
 
         if ssh.exist?("#{application_name}/config/database.yml")
@@ -109,12 +110,22 @@ class DeployCommand < Clamp::Command
         end
           
         if use_ssl?
+          Inform.info "Enabling Mod SSL" do
+            ssh.run "sudo a2enmod ssl"
+          end
           Inform.info "Uploading SSL Certificate & Private Key" do
             ssh.run "sudo mkdir -p /etc/apache2/certs" unless ssh.exist?("/etc/apache2/certs")
             ssh.upload ssl_certificate, "/tmp/sslcert"
             ssh.run "sudo mv -f /tmp/sslcert /etc/apache2/certs/#{application_name}.crt"
             ssh.upload ssl_private_key, "/tmp/sslkey"
             ssh.run "sudo mv -f /tmp/sslkey /etc/apache2/certs/#{application_name}.key"
+          end
+        end
+
+        if gamej_proxy
+          Inform.info "Enabling Mod Proxy" do
+            ssh.run "sudo a2enmod proxy"
+            ssh.run "sudo a2enmod proxy_http"
           end
         end
         
@@ -130,7 +141,8 @@ class DeployCommand < Clamp::Command
             :server_name => server_name,
             :rails_env => rails_env,
             :application_name => application_name,
-            :working_directory => "/home/ubuntu/#{application_name}"
+            :working_directory => "/home/ubuntu/#{application_name}",
+            :gamej_proxy => gamej_proxy
           ).instance_eval {binding})
           ssh.write passenger_config, "/tmp/apache.conf"
           ssh.run "sudo cp /tmp/apache.conf /etc/apache2/sites-available/#{application_name}"
