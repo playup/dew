@@ -35,7 +35,7 @@
 
     CustomLog /var/log/apache2/<%= application_name %>-access.log combined
 
-    <% if use_gamej_proxy? %>
+    <% if gamej_proxy %>
     <Location /api>
         Order allow,deny
         Allow from all
@@ -43,8 +43,8 @@
 
     # Proxy off to the engine
 	ProxyRequests Off
-	ProxyPass /api/ http://api.playupgamej.com/
-	ProxyPassReverse /api/ http://fb.playupgamej.com/
+	ProxyPass /api/ http://<%= gamej_proxy %>/
+	ProxyPassReverse /api/ http://<%= server_name %>/
     <% end %>
 </VirtualHost>
 <% if use_ssl? %>
@@ -90,7 +90,7 @@ NameVirtualHost *:443
 
     CustomLog /var/log/apache2/<%= application_name %>-access.log combined
 
-    <% if use_gamej_proxy? %>
+    <% if gamej_proxy %>
     <Location /api>
         Order allow,deny
         Allow from all
@@ -99,8 +99,8 @@ NameVirtualHost *:443
     # Proxy off to the engine
 	SSLProxyEngine on
     ProxyRequests Off
-	ProxyPass /api/ https://api.playupgamej.com/
-	ProxyPassReverse /api/ https://fb.playupgamej.com/
+	ProxyPass /api/ https://<%= gamej_proxy %>/
+	ProxyPassReverse /api/ https://<%= server_name %>/
     <% end %>
 </VirtualHost>
 <% end %>

@@ -20,7 +20,7 @@ class DeployCommand < Clamp::Command
     option ['--ssl-certificate'], 'FILE', "SSL Certificate file"
     option ['--ssl-private-key'], 'FILE', "SSL Private Key file"
     option ['--[no-]passenger'], :flag, "Use passenger (just server public/* if unset)", :default => true, :attribute_name => :use_passenger
-    option ['--gamej-proxy'], :flag, "Setup GameJ Reverse Proxy", :default => false, :attribute_name => :use_gamej_proxy
+    option ['--gamej-proxy'], 'GAMEJ_PROXY', "GameJ Reverse Proxy"
 
     def check_and_remove_rvmrc
       if ssh.exist? "#{application_name}/.rvmrc"
@@ -76,14 +76,14 @@ class DeployCommand < Clamp::Command
           
           check_and_remove_rvmrc
           Inform.debug("Checking out version %{version}", :version => revision)
-          ssh.run "cd #{application_name} && git checkout -q -f origin/#{revision}"
+          ssh.run "cd #{application_name} && git checkout -q -f #{revision}"
           check_and_remove_rvmrc
         end
 
         cd_and_rvm = "cd #{application_name} && . /usr/local/rvm/scripts/rvm && rvm use ruby-1.9.2 && RAILS_ENV=#{rails_env} "
 
         Inform.info("Updating/installing gems") do
-          ssh.run cd_and_rvm + "bundle install"
+          ssh.run cd_and_rvm + "bundle install --without development"
         end
 
         if ssh.exist?("#{application_name}/config/database.yml")
@@ -122,7 +122,7 @@ class DeployCommand < Clamp::Command
           end
         end
 
-        if use_gamej_proxy?
+        if gamej_proxy
           Inform.info "Enabling Mod Proxy" do
             ssh.run "sudo a2enmod proxy"
             ssh.run "sudo a2enmod proxy_http"
@@ -142,7 +142,7 @@ class DeployCommand < Clamp::Command
             :rails_env => rails_env,
             :application_name => application_name,
             :working_directory => "/home/ubuntu/#{application_name}",
-            :use_gamej_proxy? => :use_gamej_proxy?
+            :gamej_proxy => gamej_proxy
           ).instance_eval {binding})
           ssh.write passenger_config, "/tmp/apache.conf"
           ssh.run "sudo cp /tmp/apache.conf /etc/apache2/sites-available/#{application_name}"
