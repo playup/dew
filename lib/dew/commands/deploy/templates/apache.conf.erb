@@ -25,6 +25,7 @@
         Options -MultiViews
         AllowOverride None
         Order allow,deny
+        AddType text/x-component .htc
     </Directory>
 
     ErrorLog /var/log/apache2/<%= application_name %>-error.log
@@ -80,6 +81,7 @@ NameVirtualHost *:443
         Options -MultiViews
         AllowOverride None
         Order allow,deny
+        AddType text/x-component .htc
     </Directory>
 
     ErrorLog /var/log/apache2/<%= application_name %>-error.log
