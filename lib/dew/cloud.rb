@@ -1,4 +1,4 @@
-require 'opensrs'
+# require 'opensrs'
 
 class Cloud
 
@@ -72,7 +72,7 @@ class Cloud
   end
   
   def dns
-    @dns ||= OpenSRS::Server.new(account.opensrs_credentials)
+    # @dns ||= OpenSRS::Server.new(account.opensrs_credentials)
   end
 
   private
