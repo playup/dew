@@ -1,5 +1,3 @@
-require 'gofer'
-
 class Server < FogModel
   TEN_SECONDS = 10
   SIXTY_SECONDS = 60

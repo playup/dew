@@ -6,6 +6,7 @@ Feature: Creating a new AMI
 
   @aws
   @slow
+  @disabled
   Scenario: Creating a new AMI from a puppet configuration
     Given I specify the puppet configuration "blank"
     And I uniquely name my AMI

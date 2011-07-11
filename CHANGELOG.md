@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.1.6
+
+* Re-order requires in `lib/dew.rb` to improve gem load speed
+
 ### v0.1.4
 
 * Added `dew environments run` command to run scripts or commands on instances in the environment

@@ -38,17 +38,13 @@ describe Account do
       let (:yaml) {
         "
         dns:
-          username: bob
           domain: mydomain.com
-          password: steve
-          prefix: env
+          key: a1b2c3d4e5
         "
       }
       it { subject.has_dns?.should be_true }
-      it { subject.dns_username.should == 'bob' }
+      it { subject.dns_key.should == 'a1b2c3d4e5' }
       it { subject.dns_domain.should == 'mydomain.com' }
-      it { subject.dns_password.should == 'steve' }
-      it { subject.dns_prefix.should == 'env' }
     end
   end
   

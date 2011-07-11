@@ -1,4 +1,3 @@
-require 'fog'
 require 'dew/models/account'
 require 'dew/models/fog_model'
 require 'dew/models/deploy'
