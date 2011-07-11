@@ -5,7 +5,7 @@ describe Deploy::Puge do
   let (:tag) { 'puge-1.16.1' }
   let (:rails_env) { 'development' }
   let (:gofer) { double('Gofer').as_null_object }
-  let (:servers) { (0..1).map { |i| double("Server #{i}").as_null_object} }
+  let (:servers) { (0..1).map { |i| double("Server #{i}", :id => nil).as_null_object} }
   let (:environment) {double('Environment', :servers => servers, :database => database)}
   let (:opts) { { 'tag' => tag, 'rails_env' => rails_env } }
   let (:run_on_servers) { servers }
