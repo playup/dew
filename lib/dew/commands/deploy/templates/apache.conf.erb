@@ -28,13 +28,13 @@
         AddType text/x-component .htc
     </Directory>
 
-    ErrorLog /var/log/apache2/<%= application_name %>-error.log
+    ErrorLog <%= log_dir %>/<%= application_name %>-error.log
 
     # Possible values include: debug, info, notice, warn, error, crit,
     # alert, emerg.
     LogLevel warn
 
-    CustomLog /var/log/apache2/<%= application_name %>-access.log combined
+    CustomLog <%= log_dir %>/<%= application_name %>-access.log combined
 
     <% if gamej_proxy %>
     <Location /api>

@@ -52,12 +52,20 @@ class DeployCommand < Clamp::Command
         env.remove_server_from_elb(server) if env.has_elb?
 
         @ssh = server.ssh
+        is_redhat = ssh.exist?('/etc/redhat-release')
+        if is_redhat
+          Inform.info("RedHat server detected")
+        end
         initial = !ssh.exist?(application_name)
 
         Inform.info("%{app} doesn't exist - initial install", :app => application_name) if initial
 
         Inform.info("Stopping apache") do
-          ssh.run "sudo apache2ctl stop"
+          if is_redhat
+            ssh.run "sudo /etc/init.d/httpd stop"
+          else
+            ssh.run "sudo apache2ctl stop"
+          end
         end
 
         Inform.info("Obtaining version %{v} of %{app}", :v => revision, :app => application_name) do
@@ -70,17 +78,20 @@ class DeployCommand < Clamp::Command
             ssh.run "git clone git@github.com:playup/#{application_name}.git #{application_name}"
           else
             Inform.debug("Updating %{app} repository",  :app => application_name)
-            check_and_remove_rvmrc
+            check_and_remove_rvmrc unless is_redhat
             ssh.run "cd #{application_name}; git fetch -q"
           end
           
-          check_and_remove_rvmrc
+          check_and_remove_rvmrc unless is_redhat
           Inform.debug("Checking out version %{version}", :version => revision)
           ssh.run "cd #{application_name} && git checkout -q -f #{revision}"
-          check_and_remove_rvmrc
+          check_and_remove_rvmrc unless is_redhat
         end
-
+        
         cd_and_rvm = "cd #{application_name} && . /usr/local/rvm/scripts/rvm && rvm use ruby-1.9.2 && RAILS_ENV=#{rails_env} "
+        if is_redhat
+          cd_and_rvm = "cd #{application_name} && RAILS_ENV=#{rails_env} "
+        end
 
         Inform.info("Updating/installing gems") do
           ssh.run cd_and_rvm + "bundle install --without development"
@@ -109,7 +120,11 @@ class DeployCommand < Clamp::Command
           end
         end
           
+        
         if use_ssl?
+          if is_redhat
+            raise "SSL not yet supported for redhat"
+          end
           Inform.info "Enabling Mod SSL" do
             ssh.run "sudo a2enmod ssl"
           end
@@ -123,6 +138,9 @@ class DeployCommand < Clamp::Command
         end
 
         if gamej_proxy
+          if is_redhat
+            raise "gamej proxy not yet supported for redhat"
+          end
           Inform.info "Enabling Mod Proxy" do
             ssh.run "sudo a2enmod proxy"
             ssh.run "sudo a2enmod proxy_http"
@@ -130,6 +148,7 @@ class DeployCommand < Clamp::Command
         end
         
         Inform.info("Starting application") do
+          conf_dest = is_redhat ? "/etc/httpd/conf.d/#{application_name}.conf" : "/etc/apache2/sites-available/#{application_name}"
           if ssh.exist?('/etc/apache2/sites-enabled/000-default')
             Inform.debug("Disabling default apache site")
             ssh.run "sudo a2dissite default"
@@ -140,19 +159,24 @@ class DeployCommand < Clamp::Command
             :use_ssl? => use_ssl?,
             :server_name => server_name,
             :rails_env => rails_env,
+            :log_dir => is_redhat ? '/var/log/httpd' : '/var/log/apache2',
             :application_name => application_name,
             :working_directory => "/home/ubuntu/#{application_name}",
             :gamej_proxy => gamej_proxy
           ).instance_eval {binding})
           ssh.write passenger_config, "/tmp/apache.conf"
-          ssh.run "sudo cp /tmp/apache.conf /etc/apache2/sites-available/#{application_name}"
-          ssh.run "sudo chmod 0644 /etc/apache2/sites-available/#{application_name}" # yeah, I don't know why it gets written as 0600
-          unless ssh.exist?('/etc/apache2/sites-enabled/#{application_name}')
+          ssh.run "sudo cp /tmp/apache.conf #{conf_dest}"
+          ssh.run "sudo chmod 0644 #{conf_dest}" # yeah, I don't know why it gets written as 0600
+          unless is_redhat || ssh.exist?('/etc/apache2/sites-enabled/#{application_name}')
             Inform.debug("Enabling site in apache")
             ssh.run "sudo a2ensite #{application_name}"
           end
           Inform.debug("Restarting apache")
-          ssh.run "sudo apache2ctl restart"
+          if is_redhat
+            ssh.run "sudo /etc/init.d/httpd start"
+          else
+            ssh.run "sudo apache2ctl start"
+          end
         end
 
         unless server_name || !use_passenger?
