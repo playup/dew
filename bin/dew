@@ -2,10 +2,10 @@
 require 'dew'
 
 class DewCommand < DewBaseCommand
-  option ['-r', '--region'], "REGION", "AWS region", :default => 'ap-southeast-1'
-  option ['-a', '--account'], "ACCOUNT", "AWS account", :default => 'development'
+  option ['-r', '--region'], "REGION", "AWS region", :default => ENV['DEW_REGION'] || 'ap-southeast-1'
+  option ['-a', '--account'], "ACCOUNT", "AWS account", :default => ENV['DEW_ACCOUNT'] || 'development'
   option ['-q', '--quiet'], :flag, "Quiet mode, disables logging", :default => false
-  option ['-v', '--verbose'], :flag, "Verbose mode, print debug output", :default => false
+  option ['-v', '--verbose'], :flag, "Verbose mode, print debug output", :default => ENV['DEW_VERBOSE']
   option '--debug', :flag, "Show stacktraces on error", :default => false
   option '--version', :flag, "Prints the dew version" do
     puts "dew version #{Dew::VERSION}"
