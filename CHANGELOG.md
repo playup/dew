@@ -3,6 +3,7 @@
 ### v0.1.6
 
 * Re-order requires in `lib/dew.rb` to improve gem load speed
+* Add `DEW_REGION`, `DEW_ACCOUNT` and `DEW_VERBOSE` environment variables
 
 ### v0.1.4
 
