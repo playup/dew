@@ -3,6 +3,7 @@
 ### v0.1.7
 
 * Add support for usernames other than 'ubuntu' (defaulting to 'ubuntu' will be deprecated soonish)
+* `dew environments` is now `dew env`
 
 ### v0.1.6
 

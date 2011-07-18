@@ -12,7 +12,7 @@ class DewCommand < DewBaseCommand
     exit(0)
   end
 
-  subcommand "environments", "perform subcommands on the environments", EnvironmentsCommand
+  subcommand "env", "perform subcommands on the environments", EnvironmentsCommand
   subcommand "amis", "perform subcommands on the AMIs", AMIsCommand
   subcommand "deploy", "deploy to an environment", DeployCommand
   subcommand "console", "open an IRB session with Cloud loaded", ConsoleCommand
@@ -36,8 +36,12 @@ class DewCommand < DewBaseCommand
     rescue Clamp::HelpWanted => e
       raise
     rescue Clamp::UsageError => e
-      Inform.error(e.message)
-      puts e.command.help
+      if e.message =~ /No such sub-command 'environments'/
+        Inform.error("'environments' is now 'env' - please run 'dew env' instead")
+      else
+        Inform.error(e.message)
+        puts e.command.help
+      end
       exit(1)
     rescue Interrupt => e
       # If receive ^C Just exit the script...

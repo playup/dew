@@ -21,7 +21,7 @@ Given /^I specify the puppet configuration "([^"]*)"$/ do |puppet_config|
 end
 
 When /^I run the create\-environment script$/ do
-  @log = run_and_capture("./bin/dew --region #{@region} --account #{@account_name} --debug --verbose environments create -f #{@profile} #{@environment_name}", "create-environment.#{@profile}")
+  @log = run_and_capture("./bin/dew --region #{@region} --account #{@account_name} --debug --verbose env create -f #{@profile} #{@environment_name}", "create-environment.#{@profile}")
 end
 
 When /^I run the create\-ami script$/ do

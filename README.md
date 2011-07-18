@@ -59,7 +59,7 @@ Don't worry about setting permissions for the key - **dew** will manage that its
     
 And perform a basic self-test:
 
-    $ dew environments
+    $ dew env
 
 ## Creating a Simple Environment
 
@@ -75,15 +75,15 @@ If your keypair isn't called 'default', you'll need to edit this file and change
 
 Now, run:
 
-    dew -v environments create test-light my-first-environment
+    dew -v env create test-light my-first-environment
     
 You'll be shown a summary of the environment that you're about to create. Type 'y' to confirm its creation and watch as it's created.
 
 Once complete you can run the following commands to interact with your environment:
 
-    dew environments ssh my-first-environment
-    dew environments show my-first-environment
-    dew environments destroy my-first-environment
+    dew env ssh my-first-environment
+    dew env show my-first-environment
+    dew env destroy my-first-environment
 
 ## Creating an AMI for a new Environment
 
