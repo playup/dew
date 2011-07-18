@@ -92,10 +92,12 @@ class EnvironmentsCommand < Clamp::Command
   subcommand "run", "Run a script or command on each instance in the environment" do
     parameter "ENVIRONMENT_NAME", "Name of the environment"
     option ['-s', '--script'], "FILENAME", "Script to run on each instance"
+    option ['-a', '--args'], "ARGUMENTS", "Optional arguments to the script provided in --script", :default => ''
     option ['-c', '--command'], "COMMAND", "Command to run on each instance"
     
     def execute
       raise "Please supply either -s or -c" unless script or command
+      raise "--args only compatiable with --script" if command and args
       
       env = Environment.get(environment_name)
       
@@ -106,7 +108,7 @@ class EnvironmentsCommand < Clamp::Command
           if script
             ssh.upload(script, '/tmp/script')
             ssh.run("chmod +x /tmp/script")
-            ssh.run("/tmp/script", :quiet => false)
+            ssh.run("/tmp/script #{args}", :quiet => false)
             ssh.run("rm /tmp/script")
           else
             ssh.run(command, :quiet => false)

@@ -4,6 +4,7 @@
 
 * Add support for usernames other than 'ubuntu' (defaulting to 'ubuntu' will be deprecated soonish)
 * `dew environments` is now `dew env`
+* Add `--args` option to `dew env run`
 
 ### v0.1.6
 
