@@ -32,6 +32,7 @@ describe Profile do
            security-groups:
             - non_default
            keypair: id_revo
+           username: myusername
         "
       }
       
@@ -40,6 +41,7 @@ describe Profile do
       it { subject.size.should == 'c1.medium' }
       it { subject.security_groups.should == %w{non_default} }
       it { subject.keypair.should == 'id_revo' }
+      it { subject.username.should == 'myusername' }
       
       it "should have a to_s" do
         subject.to_s.should == <<EOF
@@ -53,6 +55,10 @@ EOF
       end
     end
 
+    it "should default to 'ubuntu' as the username" do
+      subject.username.should == 'ubuntu'
+    end
+    
     describe "without an elb or RDS section" do
       it { subject.has_elb?.should be_false }
       it { subject.has_rds?.should be_false }

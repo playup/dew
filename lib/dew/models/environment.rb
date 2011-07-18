@@ -34,7 +34,7 @@ class Environment
     environment.add_database(profile.rds_size, password) if profile.has_rds?
 
     (1..profile.count).each do
-      environment.add_server(profile.ami, profile.size, profile.keypair, profile.security_groups)
+      environment.add_server(profile.ami, profile.size, profile.keypair, profile.security_groups, profile.username)
     end
   
     environment.add_elb(profile.elb_listener_ports) if profile.has_elb?
@@ -104,7 +104,7 @@ class Environment
     end
   end
 
-  def add_server ami, size, keypair, groups
+  def add_server ami, size, keypair, groups, username
     Inform.info "Adding server using AMI %{ami} of size %{size}, keypair %{keypair} and security groups %{groups}",
       :ami => ami, :size => size, :keypair => keypair, :groups => groups do
       server = Server.create!( ami, size, keypair, groups )
@@ -112,6 +112,7 @@ class Environment
       server.add_tag('Creator', ENV['USER'])
       server_name = "#{name} #{servers.count + 1}"
       server.add_tag('Name', server_name)
+      server.add_tag('Username', username) # Needed for SSH
       Inform.debug("%{name} ID: %{id} AZ: %{az}", :name => server_name, :id =>server.id, :az => server.availability_zone)
       servers << server
     end

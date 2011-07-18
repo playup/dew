@@ -4,7 +4,7 @@ class Profile
 
   attr_reader :profile_name
   attr_accessor :ami, :size, :security_groups, :keypair, :count
-  attr_accessor :rds_size, :elb_listener_ports
+  attr_accessor :rds_size, :elb_listener_ports, :username
 
   AWS_RESOURCES = YAML.load(File.read(File.join(File.dirname(__FILE__), '..', 'aws_resources.yaml')))
 
@@ -12,12 +12,14 @@ class Profile
     file = File.read(File.join(ENV['HOME'], '.dew', 'profiles', "#{profile_name}.yaml"))
     yaml = YAML.load(file)
     profile = new(profile_name)
+    profile.username = 'ubuntu'
     if yaml['instances']
       profile.ami = yaml['instances']['amis'][Cloud.region]
       profile.size = yaml['instances']['size']
-      profile.security_groups = yaml['instances']['security-groups'] || ['default']
+      profile.security_groups = yaml['instances']['security-groups'] || ['default'] #XXX is this fallback tested?
       profile.keypair = yaml['instances']['keypair']
       profile.count = yaml['instances']['count'].to_i
+      profile.username = yaml['instances']['username'] if yaml['instances'].include?('username')
     end
     if yaml['elb']
       profile.elb_listener_ports = yaml['elb']['listener_ports']

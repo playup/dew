@@ -51,7 +51,7 @@ describe Environment do
 
   describe ".create" do
     let (:security_groups) { %w(non_default) }
-    let(:profile) { double(:profile, :keypair => 'default', :security_groups => security_groups, :ami => 'i-1234', :has_rds? => false, :has_elb? => false, :count => 2, :size => 'small' ) }
+    let(:profile) { double(:profile, :username => 'username', :keypair => 'default', :security_groups => security_groups, :ami => 'i-1234', :has_rds? => false, :has_elb? => false, :count => 2, :size => 'small' ) }
 
     context "when environment name is invalid" do
       it "should raise an error" do
@@ -80,7 +80,7 @@ describe Environment do
         let(:profile_count) { 2 }
 
         it "should add two instances to that environment with the chosen AMI, size and keypair" do
-          @env.should_receive(:add_server).with(profile.ami, profile.size, profile.keypair, profile.security_groups).twice
+          @env.should_receive(:add_server).with(profile.ami, profile.size, profile.keypair, profile.security_groups, profile.username).twice
         end
       end
 
@@ -223,27 +223,28 @@ EOF
 
     it "should create a Server from the provided ami, size and keypair" do
       Server.should_receive(:create!).with(*@args)
-      @environment.add_server(*@args)
+      @environment.add_server(*@args, 'username')
     end
 
     it "should add the Server to its servers array" do
-      @environment.add_server(*@args)
-      @environment.add_server(*@args)
+      @environment.add_server(*@args, 'username')
+      @environment.add_server(*@args, 'username')
       @environment.servers.should == [server, server]
     end
 
-    it "should tag the server with the environment name and creator" do
+    it "should tag the server with the environment name, creator and username" do
       server.should_receive(:add_tag).with('Environment', name)
       server.should_receive(:add_tag).with('Creator', ENV['USER'])
-      @environment.add_server(*@args)
+      server.should_receive(:add_tag).with('Username', 'username')
+      @environment.add_server(*@args, 'username')
     end
 
     it "should tag the server with an indexed name" do
       server.should_receive(:add_tag).with('Name', "#{name} 1")
-      @environment.add_server(*@args)
+      @environment.add_server(*@args, 'username')
 
       server.should_receive(:add_tag).with('Name', "#{name} 2")
-      @environment.add_server(*@args)
+      @environment.add_server(*@args, 'username')
     end
   end
 

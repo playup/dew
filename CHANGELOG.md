@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.1.7
+
+* Add support for usernames other than 'ubuntu' (defaulting to 'ubuntu' will be deprecated soonish)
+
 ### v0.1.6
 
 * Re-order requires in `lib/dew.rb` to improve gem load speed

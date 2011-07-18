@@ -51,7 +51,17 @@ describe Server do
     end
 
     describe :username do
-      it "should always be 'ubuntu'" do
+      context "with a username tag" do
+        before :each do
+          fog_server.should_receive(:tags).and_return({'Username' => 'bob'})
+        end
+        
+        it "should use the username in the tag" do
+          @server.username.should == 'bob'
+        end
+      end
+      
+      it "should default to 'ubuntu' if no Username tag is present" do
         @server.username.should == 'ubuntu'
       end
     end
@@ -98,7 +108,7 @@ describe Server do
             File.should_receive(:stat).with(@path).and_raise(Errno::ENOENT)
           end
 
-          it { lambda { @server.credentials }.should raise_error /Can't find keyfile/ }
+          it { lambda { @server.credentials }.should raise_error %r{Can't find keyfile} }
         end
       end
     end
@@ -147,7 +157,7 @@ describe Server do
       it "should open a new Gofer::Host connection using the hostname, default username and key data" do
         Cloud.should_receive(:keyfile_path).with(key_name).and_return('/key/path')
         File.should_receive(:read).with('/key/path').and_return('key data')
-        Gofer::Host.should_receive(:new).with(endpoint, 'ubuntu', hash_including(:key_data => ['key data'])).and_return 'ssh'
+        Gofer::Host.should_receive(:new).with(endpoint, @server.username, hash_including(:key_data => ['key data'])).and_return 'ssh'
         @server.ssh.should == 'ssh'
       end
     end

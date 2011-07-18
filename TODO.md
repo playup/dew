@@ -1,5 +1,11 @@
 # TODO
 
+## 2011-07-18
+
+ * Instances get tagged with their username by 'environment', which 'server' model depends on - law of demeter violation.
+ * Add username support to tests
+ * Add username verbosity to scripts
+ 
 ## 2011-07-03
 
  * Add support for automated DNS setup (eg, provisioning an environment will set A records)
