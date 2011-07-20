@@ -1,9 +1,10 @@
 # Monkey patch clamp to remove duplicate options from help
 module Clamp::Option::Declaration
-  alias_method :non_uniq_documented_options, :documented_options
-  def documented_options
-    non_uniq_documented_options.uniq
-  end
+  # alias_method :non_uniq_documented_options, :documented_options
+  # def documented_options
+  #   non_uniq_documented_options.uniq
+  # end
+  # XXX!
 end
 
 

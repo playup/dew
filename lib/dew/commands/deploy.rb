@@ -21,6 +21,7 @@ class DeployCommand < Clamp::Command
     option ['--ssl-private-key'], 'FILE', "SSL Private Key file"
     option ['--[no-]passenger'], :flag, "Use passenger (just server public/* if unset)", :default => true, :attribute_name => :use_passenger
     option ['--gamej-proxy'], 'GAMEJ_PROXY', "GameJ Reverse Proxy"
+    option ['--create-database'], :flag, "Create the database, even if this isn't the initial checkout", :default => false
 
     def check_and_remove_rvmrc
       if ssh.exist? "#{application_name}/.rvmrc"
@@ -33,7 +34,7 @@ class DeployCommand < Clamp::Command
     def use_ssl?
       ssl_certificate || ssl_private_key
     end
-    
+
     def execute
       if use_ssl?
         raise "--server-name required if SSL credentials supplied" unless server_name
@@ -42,11 +43,11 @@ class DeployCommand < Clamp::Command
         raise "--ssl-certificate required if SSL private key supplied" unless ssl_certificate
         raise "--ssl-certificate file #{ssl_certificate} does not exist" unless File.exist?(ssl_certificate)
       end
-       
+
       env = Environment.get(environment_name)
-      
+
       db_managed = false
-      
+
       env.servers.each do |server|
         Inform.info("Working with server %{id} of %{l} servers", :id => server.id, :l => env.servers.length)
         env.remove_server_from_elb(server) if env.has_elb?
@@ -81,13 +82,13 @@ class DeployCommand < Clamp::Command
             check_and_remove_rvmrc unless is_redhat
             ssh.run "cd #{application_name}; git fetch -q"
           end
-          
+
           check_and_remove_rvmrc unless is_redhat
           Inform.debug("Checking out version %{version}", :version => revision)
           ssh.run "cd #{application_name} && git checkout -q -f #{revision}"
           check_and_remove_rvmrc unless is_redhat
         end
-        
+
         cd_and_rvm = "cd #{application_name} && . /usr/local/rvm/scripts/rvm && rvm use ruby-1.9.2 && RAILS_ENV=#{rails_env} "
         if is_redhat
           cd_and_rvm = "cd #{application_name} && RAILS_ENV=#{rails_env} "
@@ -97,10 +98,16 @@ class DeployCommand < Clamp::Command
           ssh.run cd_and_rvm + "bundle install --without development"
         end
 
+        if ssh.exist?("#{application_name}/config/database.dew.yml")
+          Inform.info("config/database.dew.yml found, linking to database.yml") do
+            ssh.run cd_and_rvm + "ln -sf database.dew.yml config/database.yml"
+          end
+        end
+
         if ssh.exist?("#{application_name}/config/database.yml")
           if !db_managed
             Inform.info("config/database.yml exists, creating and/or updating database") do
-              if initial
+              if initial || create_database?
                 Inform.debug("Creating database")
                 ssh.run cd_and_rvm + "bundle exec rake db:create"
               end
@@ -112,15 +119,15 @@ class DeployCommand < Clamp::Command
         else
           Inform.info("No config/database.yml, skipping database step")
         end
-        
+
         build_script = 'script/build'
         if ssh.exist? application_name + '/' + build_script
           Inform.info("Build script discovered at %{build_script}, running", :build_script => build_script) do
             ssh.run cd_and_rvm + "bundle exec #{build_script}"
           end
         end
-          
-        
+
+
         if use_ssl?
           if is_redhat
             raise "SSL not yet supported for redhat"
@@ -146,7 +153,7 @@ class DeployCommand < Clamp::Command
             ssh.run "sudo a2enmod proxy_http"
           end
         end
-        
+
         Inform.info("Starting application") do
           conf_dest = is_redhat ? "/etc/httpd/conf.d/#{application_name}.conf" : "/etc/apache2/sites-available/#{application_name}"
           if ssh.exist?('/etc/apache2/sites-enabled/000-default')
@@ -193,9 +200,9 @@ class DeployCommand < Clamp::Command
         env.add_server_to_elb(server) if env.has_elb?
       end
     end
-    
+
     private
-    
+
     def ssh
       @ssh
     end
