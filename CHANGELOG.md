@@ -1,4 +1,8 @@
 # Changelog
+### v0.1.8
+
+* `deploy passenger` will now `ln -sf database.dew.yml database.yml` for those projects that don't wan't to put a `database.yml` in their repo
+* Add `--create-database` option to `deploy passenger` to force a db creation attempt
 
 ### v0.1.7
 
