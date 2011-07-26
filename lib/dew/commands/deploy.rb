@@ -45,6 +45,7 @@ class DeployCommand < Clamp::Command
       end
 
       env = Environment.get(environment_name)
+      raise "Unknown environment #{environment_name}" unless env
 
       db_managed = false
 
