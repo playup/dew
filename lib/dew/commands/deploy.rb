@@ -162,6 +162,7 @@ class DeployCommand < Clamp::Command
             ssh.run "sudo a2dissite default"
           end
           Inform.debug("Uploading passenger config")
+          working_directory = ssh.run("cd #{application_name} && pwd").chomp
           passenger_config = ERB.new(File.read template('apache.conf.erb')).result(OpenStruct.new(
             :use_passenger? => use_passenger?,
             :use_ssl? => use_ssl?,
@@ -169,11 +170,13 @@ class DeployCommand < Clamp::Command
             :rails_env => rails_env,
             :log_dir => is_redhat ? '/var/log/httpd' : '/var/log/apache2',
             :application_name => application_name,
-            :working_directory => "/home/ubuntu/#{application_name}",
+            :working_directory => working_directory,
             :gamej_proxy => gamej_proxy
           ).instance_eval {binding})
-          ssh.write passenger_config, "/tmp/apache.conf"
-          ssh.run "sudo cp /tmp/apache.conf #{conf_dest}"
+          apache_tmpfile = ssh.run("mktemp -t apacheconf").chomp
+          ssh.write passenger_config, apache_tmpfile
+          ssh.run "sudo cp #{apache_tmpfile} #{conf_dest}"
+          ssh.run "rm #{apache_tmpfile}"
           ssh.run "sudo chmod 0644 #{conf_dest}" # yeah, I don't know why it gets written as 0600
           unless is_redhat || ssh.exist?('/etc/apache2/sites-enabled/#{application_name}')
             Inform.debug("Enabling site in apache")

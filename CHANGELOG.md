@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.1.9
+
+* Apache deploy template now uses port 8080 for HTTPd to enable allow for varnish integration.
+* Deploy uses `mktemp` on the destination system instead of always writing the config file to `/tmp/apache.conf`
+* Deploy obtains the working directory for the deployed application rather than simply guessing it
+
 ### v0.1.8
 
 * `deploy passenger` will now `ln -sf database.dew.yml database.yml` for those projects that don't wan't to put a `database.yml` in their repo

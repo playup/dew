@@ -1,4 +1,4 @@
-<VirtualHost *:80>
+<VirtualHost *:8080>
     ServerAdmin admin@playup.com
 
     <% if server_name %>
@@ -48,6 +48,7 @@
 	ProxyPassReverse /api/ http://<%= server_name %>/
     <% end %>
 </VirtualHost>
+
 <% if use_ssl? %>
 NameVirtualHost *:443
 <VirtualHost *:443>
