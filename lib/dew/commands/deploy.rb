@@ -96,7 +96,7 @@ class DeployCommand < Clamp::Command
         end
 
         Inform.info("Updating/installing gems") do
-          ssh.run cd_and_rvm + "bundle install --without development"
+          ssh.run cd_and_rvm + "bundle install --without development test"
         end
 
         if ssh.exist?("#{application_name}/config/database.dew.yml")
