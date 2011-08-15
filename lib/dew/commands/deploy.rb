@@ -90,7 +90,7 @@ class DeployCommand < Clamp::Command
           check_and_remove_rvmrc unless is_redhat
         end
 
-        cd_and_rvm = "cd #{application_name} && . /usr/local/rvm/scripts/rvm && rvm use ruby-1.9.2 && RAILS_ENV=#{rails_env} "
+        cd_and_rvm = "cd #{application_name} && . /usr/local/rvm/scripts/rvm && rvm use ruby-1.9.2-p180 && RAILS_ENV=#{rails_env} "
         if is_redhat
           cd_and_rvm = "cd #{application_name} && RAILS_ENV=#{rails_env} "
         end
