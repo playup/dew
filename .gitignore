@@ -1,9 +1,7 @@
-.rvmrc
 .autotest
 .idea/*
 .bundle
 .*.swp
-.rvmrc
 .DS_Store
 coverage
 tmp
