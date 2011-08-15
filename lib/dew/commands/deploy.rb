@@ -173,7 +173,7 @@ class DeployCommand < Clamp::Command
             :working_directory => working_directory,
             :gamej_proxy => gamej_proxy
           ).instance_eval {binding})
-          apache_tmpfile = ssh.run("mktemp -t apacheconf").chomp
+          apache_tmpfile = ssh.run("mktemp -t apacheconf.XXX").chomp
           ssh.write passenger_config, apache_tmpfile
           ssh.run "sudo cp #{apache_tmpfile} #{conf_dest}"
           ssh.run "rm #{apache_tmpfile}"
