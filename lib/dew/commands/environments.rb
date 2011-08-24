@@ -34,9 +34,10 @@ class EnvironmentsCommand < Clamp::Command
   subcommand "show", "Show environment" do
 
     parameter "ENVIRONMENT_NAME", "Name of the environment"
-
+    option ['-j', '--json'], :flag, "Output as JSON", :default => false
+    
     def execute
-      controller.show(environment_name)
+      controller.show(environment_name, :json => json?)
     end
 
   end

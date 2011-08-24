@@ -57,7 +57,9 @@ class Environment
     Inform.info View.new('Environments', owners, %w(name owner)).index
   end
 
-  def show
+  def show(options = {})
+    return show_json if options[:json]
+  
     result = ""
 
     result << "ENVIRONMENT:\n"
@@ -84,6 +86,17 @@ class Environment
     end
 
     Inform.info result
+  end
+  
+  def show_json
+    json = servers.map do |s|
+      {
+        'public_dns' => s.dns_name,
+        'public_ip' => s.public_ip_address
+      }
+    end
+    
+    puts JSON.pretty_generate(json)
   end
 
   def destroy

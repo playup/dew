@@ -20,10 +20,10 @@ class EnvironmentsController
     Environment.index
   end
 
-  def show(name)
+  def show(name, options = {})
     before_get_environment name
 
-    @environment.show
+    @environment.show(options)
   end
 
   def destroy name, opts={}
