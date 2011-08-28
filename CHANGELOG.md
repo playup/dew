@@ -4,6 +4,7 @@
 
 * Changed `env ssh` command to optionally accept a command to run
 * Added `env scp` command
+* BUGFIX where `Server.username` was attempting to access `tags` instead of `fog_object.tags`
 
 ### v0.1.9
 

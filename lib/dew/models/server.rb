@@ -29,7 +29,7 @@ class Server < FogModel
   end
 
   def username
-    tags['Username'] || 'ubuntu'
+    fog_object.tags['Username'] || 'ubuntu'
   end
 
   def ssh
