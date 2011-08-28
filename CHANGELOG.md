@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.2.1
+
+* Changed `env ssh` command to optionally accept a command to run
+* Added `env scp` command
+
 ### v0.1.9
 
 * Apache deploy template now uses port 8080 for HTTPd to enable allow for varnish integration.

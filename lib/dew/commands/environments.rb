@@ -35,7 +35,7 @@ class EnvironmentsCommand < Clamp::Command
 
     parameter "ENVIRONMENT_NAME", "Name of the environment"
     option ['-j', '--json'], :flag, "Output as JSON", :default => false
-    
+
     def execute
       controller.show(environment_name, :json => json?)
     end
@@ -69,8 +69,9 @@ class EnvironmentsCommand < Clamp::Command
     end
   end
 
-  subcommand "ssh", "SSH to an environment" do
+  subcommand "ssh", "ssh to an environment" do
     parameter "ENVIRONMENT_NAME", "Name of the environment"
+    parameter "[COMMAND]", "Command to execute on the environment"
     option ['-i', '--instance'], 'INSTANCE_NUMBER', "Which instance to SSH to", :default => 1 do |s|
       Integer(s)
     end
@@ -82,26 +83,57 @@ class EnvironmentsCommand < Clamp::Command
         if print?
           puts server.credentials
         else
-          command = "ssh #{server.credentials}"
-          Inform.debug("Running %{command}", :command => command)
-          system command
+          cmd = "ssh #{server.credentials} #{command}".strip
+          Inform.debug("Running %{cmd}", :cmd => cmd)
+          system cmd
         end
       end
     end
   end
-  
+
+  subcommand "scp", "ie. scp ENV_NAME:file1 file2 or scp file1 ENV_NAME:file2" do
+    option ['-i', '--instance'], 'INSTANCE_NUMBER', "Which instance to SSH to", :default => 1 do |s|
+      Integer(s)
+    end
+    parameter "FILE1", "Source file"
+    parameter "FILE2", "Destination file"
+
+    def execute
+      if file1.include?(':')
+        direction = :to
+        env_name, src_file = file1.split(':')
+        dest_file = file2
+      elsif file2.include?(':')
+        direction = :from
+        src_file = file1
+        env_name, dest_file = file2.split(':')
+      else
+        raise help
+      end
+
+      server = get_server(env_name, instance)
+      if server.credentials
+        args = server.credentials.split
+        host = args.pop
+        command = "scp #{args.join(' ')} #{direction == :to ? "#{[host, src_file].join(':')} #{dest_file}" : "#{[host, src_file].join(':')} #{dest_file}"}"
+        Inform.debug("Running %{command}", :command => command)
+        system command
+      end
+    end
+  end
+
   subcommand "run", "Run a script or command on each instance in the environment" do
     parameter "ENVIRONMENT_NAME", "Name of the environment"
     option ['-s', '--script'], "FILENAME", "Script to run on each instance"
     option ['-a', '--args'], "ARGUMENTS", "Optional arguments to the script provided in --script", :default => ''
     option ['-c', '--command'], "COMMAND", "Command to run on each instance"
-    
+
     def execute
       raise "Please supply either -s or -c" unless script or command
       raise "--args only compatiable with --script" if command and args
-      
+
       env = Environment.get(environment_name)
-      
+
       Inform.info("Running on %{l} servers", :l => env.servers.length) do
         env.servers.each do |server|
           start = Time.now
@@ -133,6 +165,10 @@ class EnvironmentsCommand < Clamp::Command
 
   def get_server(environment_name, instance_no)
     env = Environment.get(environment_name)
+    unless env
+      Environment.index
+      raise "Unknown environment: #{environment_name}"
+    end
     server = env.servers[instance_no - 1]
     raise "Environment only has #{env.servers.length} instances, can't SSH to instance ##{instance}" unless server
     server
