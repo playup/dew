@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.2.2
+
+* Added extra options to  command.
+
 ### v0.2.1
 
 * Changed `env ssh` command to optionally accept a command to run

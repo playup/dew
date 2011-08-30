@@ -92,6 +92,13 @@ class EnvironmentsCommand < Clamp::Command
   end
 
   subcommand "scp", "ie. scp ENV_NAME:file1 file2 or scp file1 ENV_NAME:file2" do
+    option ['-C', '--compress'] , :flag , 'Compression enable.  Passes the -C flag to ssh(1) to enable compression.', :default => false
+    option ['-p', '--preserve'] , :flag , 'Preserves modification times, access times, and modes from the original file.', :default => false
+    option ['-q', '--quiet']    , :flag , 'Quiet mode: disables the progress meter as well as warning and diagnostic messages from ssh(1).', :default => false
+    option ['-r', '--recursive'], :flag , 'Recursively copy entire directories.  Note that scp follows symbolic links encountered in the tree traversal.', :default => false
+    option ['-v', '--verbose']  , :flag , 'Verbose mode.  Causes scp and ssh(1) to print debugging messages about their progress.  This is helpful in debugging connection, authentication, and configuration problems.', :default => false
+    option ['-l', '--limit']    , 'LIMIT' , 'Limits the used bandwidth, specified in Kbit/s.'
+    option ['-P', '--port']     , 'PORT'  , "Specifies the port to connect to on the remote host."
     option ['-i', '--instance'], 'INSTANCE_NUMBER', "Which instance to SSH to", :default => 1 do |s|
       Integer(s)
     end
@@ -115,7 +122,15 @@ class EnvironmentsCommand < Clamp::Command
       if server.credentials
         args = server.credentials.split
         host = args.pop
-        command = "scp #{args.join(' ')} #{direction == :to ? "#{[host, src_file].join(':')} #{dest_file}" : "#{[host, src_file].join(':')} #{dest_file}"}"
+        options = []
+        options << '-c' if compress?
+        options << '-p' if preserve?
+        optoins << '-q' if quiet?
+        options << '-r' if recursive?
+        options << '-v' if verbose?
+        options << "-l #{limit}" if limit
+        options << "-P#{port}" if port
+        command = "scp #{options.join(' ')} #{args.join(' ')} #{direction == :to ? "#{[host, src_file].join(':')} #{dest_file}" : "#{[host, src_file].join(':')} #{dest_file}"}"
         Inform.debug("Running %{command}", :command => command)
         system command
       end
