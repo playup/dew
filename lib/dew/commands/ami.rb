@@ -28,16 +28,6 @@ class AMIsCommand < Clamp::Command
 
   end
 
-  subcommand "show", "Show an AMI" do
-
-    parameter "AMI_NAME", "Name of AMI"
-
-    def execute
-      controller.show(ami_name)
-    end
-
-  end
-
   subcommand "create", "Create a new AMI" do
 
     parameter "PUPPET_NODE_NAME", "Puppet node (in puppet/manifests/nodes/*.pp) to run on AMI" do |puppet_node_name|
