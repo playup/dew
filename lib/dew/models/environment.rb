@@ -117,9 +117,9 @@ class Environment
     end
   end
 
-  def add_server ami, size, keypair, groups, username
-    Inform.info "Adding server using AMI %{ami} of size %{size}, keypair %{keypair} and security groups %{groups.join(',')}",
-      :ami => ami, :size => size, :keypair => keypair, :groups => groups do
+  def add_server(ami, size, keypair, groups, username)
+    Inform.info "Adding server using AMI %{ami} of size %{size}, keypair %{keypair} and security groups %{groups}",
+      :ami => ami, :size => size, :keypair => keypair, :groups => groups.join(',') do
       server = Server.create!( ami, size, keypair, groups )
       server.add_tag('Environment', name)
       server.add_tag('Creator', ENV['USER'])
