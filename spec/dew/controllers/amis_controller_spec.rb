@@ -14,33 +14,39 @@ describe AMIsController do
 
   before { Cloud.stub(:compute => double('Compute', :images => images)) }
 
-  describe :create do
-    before :each do
+  describe '#create' do
+    before do
       Profile.stub(:read => nil)
       Environment.stub(:create => environment)
     end
     
-    after :each do
-      controller.create(ami_name, puppet_node_name, prototype_profile_name)
-    end
+    subject { controller.create(ami_name, puppet_node_name, prototype_profile_name) }
     
     it "should create a new environment using the supplied profile" do
       Profile.should_receive(:read).with(prototype_profile_name).and_return('ami_profile')
       Environment.should_receive(:create).with(/#{ami_name}/, 'ami_profile').and_return environment
+      subject
     end
     
     # Not all elements of the script are tested - just the important bits
     it "should upload our puppet configuration to the instance" do
       ssh.should_receive(:upload)#.with(File.join(ROOT_DIR, 'puppet'), '/tmp/puppet')
+      subject
     end
+
     it "should run puppet using the node name we specified" do
       ssh.should_receive(:run).with(%r{puppet.+/etc/puppet/manifests/nodes/#{puppet_node_name}.pp})
+      subject
     end
+
     it "should create an AMI from the resulting server" do
       server.should_receive(:create_ami).with(ami_name)
+      subject
     end
+
     it "should finally destroy the environment" do
       environment.should_receive(:destroy)
+      subject
     end
   end
 
