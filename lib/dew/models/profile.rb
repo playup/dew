@@ -9,8 +9,7 @@ class Profile
   AWS_RESOURCES = YAML.load(File.read(File.join(File.dirname(__FILE__), '..', 'aws_resources.yaml')))
 
   def self.read(profile_name)
-    file = File.read(File.join(ENV['HOME'], '.dew', 'profiles', "#{profile_name}.yaml"))
-    yaml = YAML.load(file)
+    yaml = YAML.load_file(File.join(ENV['HOME'], '.dew', 'profiles', "#{profile_name}.yaml"))
     profile = new(profile_name)
     profile.username = 'ubuntu'
     if yaml['instances']

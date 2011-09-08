@@ -3,7 +3,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
 describe Profile do
 
   it "should look for profile file in the profiles dir" do
-    File.should_receive(:read).with("#{ENV['HOME']}/.dew/profiles/puge.yaml").and_return("---")
+    YAML.should_receive(:load_file).with("#{ENV['HOME']}/.dew/profiles/puge.yaml").and_return({})
     Profile.read('puge')
   end
 
@@ -11,10 +11,10 @@ describe Profile do
 
     # TODO: This can be refactored to use subject to reduce lines of code.
 
-    let (:yaml) { "blank: blank" }
+    let(:profile) { { 'blank' => 'blank' } }
 
     before :each do
-      File.stub(:read).and_return(yaml)
+      YAML.stub(:load_file).and_return(profile)
       Cloud.stub(:region => 'ap-southeast-1')
       Cloud.stub_chain(:compute, :flavors, :detect => double(:flavor, :ram => 1.7, :cores => 5, :disk => 350, :bits => 32 ))
     end
@@ -22,19 +22,20 @@ describe Profile do
     subject { Profile.read('development') }
 
     describe "with an instances section" do
-      let (:yaml) {
-        "
-        instances:
-           amis:
-              ap-southeast-1: ami-ccf405a5
-           size: c1.medium
-           count: 2
-           security-groups:
-            - non_default
-           keypair: id_revo
-           username: myusername
-        "
-      }
+      let(:profile) do
+        {
+          'instances' => {
+            'amis' => {
+              'ap-southeast-1' => 'ami-ccf405a5'
+            },
+            'size' => 'c1.medium',
+            'count' => 2,
+            'security-groups' => ['non_default'],
+            'keypair' => 'id_revo',
+            'username' => 'myusername'
+          }
+        }
+      end
       
       it { subject.ami.should == 'ami-ccf405a5' }
       it { subject.count.should == 2 }
@@ -65,25 +66,27 @@ EOF
     end
     
     describe "with an elb section" do
-      let (:yaml) {
-        "
-        elb:
-          listener_ports:
-            - 80
-            - 443
-            "
-      }
+      let(:profile) do
+        {
+          'elb' => {
+            'listener_ports' => [80, 443]
+          }
+        }
+      end
+      
       it { subject.has_elb?.should be_true }
       it { subject.elb_listener_ports.should == [80, 443] }
     end
     
     describe "with an RDS section" do
-      let (:yaml) {
-        "
-        rds:
-          size: db.m1.small
-        "
-      }
+      let(:profile) do
+        {
+          'rds' => {
+            'size' => 'db.m1.small'
+          }
+        }
+      end
+      
       it { subject.has_rds?.should be_true }
       it { subject.rds_size.should == 'db.m1.small' }
     end
