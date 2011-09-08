@@ -41,7 +41,7 @@ class AMIsCommand < Clamp::Command
     option ['-p', '--prototype-profile'], "AMI_PROTOTYPE_NAME", "Profile to use as a prototype for the AMI", :default => 'ami-prototype'
     
     def execute
-      controller.create(ami_name, puppet_node_name)
+      controller.create(ami_name, puppet_node_name, prototype_profile)
     end
 
   end

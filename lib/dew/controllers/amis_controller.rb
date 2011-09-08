@@ -3,7 +3,7 @@ require 'dew/controllers/environments_controller'
 class AMIsController
 
   def create(ami_name, puppet_node_name, prototype_profile_name)
-    Inform.info("Creating new AMI %{ami_name} using puppet node %{puppet}", :ami_name => ami_name, :puppet => puppet_node_name)
+    Inform.info("Creating new AMI %{ami_name} using puppet node %{puppet} based on %{prototype_profile_name}", :ami_name => ami_name, :puppet => puppet_node_name, :prototype_profile_name => prototype_profile_name)
     environment_name = ami_name + '-prototype-' + $$.to_s
 
     environment = Environment.create(environment_name, Profile.read(prototype_profile_name))
