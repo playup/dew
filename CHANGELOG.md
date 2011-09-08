@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.2.3
+
+* Added '--prototype-profile' option to "dew amis create", so you can base AMIs on different profiles.
+
 ### v0.2.2
 
 * Added extra options to  command.
