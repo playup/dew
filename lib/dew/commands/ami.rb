@@ -36,8 +36,10 @@ class AMIsCommand < Clamp::Command
       end
       puppet_node_name
     end
+    
     parameter "AMI_NAME", "What to call the newly created AMI"
-
+    option ['-p', '--prototype-profile'], "AMI_PROTOTYPE_NAME", "Profile to use as a prototype for the AMI", :default => 'ami-prototype'
+    
     def execute
       controller.create(ami_name, puppet_node_name)
     end

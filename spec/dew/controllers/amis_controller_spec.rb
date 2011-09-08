@@ -3,8 +3,9 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
 describe AMIsController do
 
   let (:controller) { AMIsController.new }
-  let (:ami_name) { 'my-ami' }
-  let (:puppet_node_name) { 'puppet-node-name' }
+  let (:ami_name) { "my-ami-#{Time.now.to_i}" }
+  let (:puppet_node_name) { "puppet-node-name-#{Time.now.to_i}" }
+  let (:prototype_profile_name) { "ami-prototype-#{Time.now.to_i}" }
   let (:ssh) { double('SSH', :run => nil, :upload => nil) }
   let (:server) { double('Server', :id => 'i-12345', :ssh => ssh, :public_ip_address => '127.0.0.1', :create_ami => nil) }
   let (:environment) { double('Environment', :servers => [server], :destroy => nil) }
@@ -18,13 +19,16 @@ describe AMIsController do
       Profile.stub(:read => nil)
       Environment.stub(:create => environment)
     end
+    
     after :each do
-      controller.create(ami_name, puppet_node_name)
+      controller.create(ami_name, puppet_node_name, prototype_profile_name)
     end
-    it "should create a new environment using the ami-prototype profile" do
-      Profile.should_receive(:read).with('ami-prototype').and_return('ami_profile')
+    
+    it "should create a new environment using the supplied profile" do
+      Profile.should_receive(:read).with(prototype_profile_name).and_return('ami_profile')
       Environment.should_receive(:create).with(/#{ami_name}/, 'ami_profile').and_return environment
     end
+    
     # Not all elements of the script are tested - just the important bits
     it "should upload our puppet configuration to the instance" do
       ssh.should_receive(:upload)#.with(File.join(ROOT_DIR, 'puppet'), '/tmp/puppet')
