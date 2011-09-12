@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.2.5
+
+* Bugfix where defined user_id is converted into a Fixnum, causing gsub
+  to fail.
+
 ### v0.2.4
 
 * Bugfix on "amis create"
