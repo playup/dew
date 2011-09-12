@@ -21,7 +21,7 @@ class Account
   end
 
   def aws_user_id
-    @yaml['aws']['user_id'].gsub('-', '')
+    @yaml['aws']['user_id'].to_s.gsub('-', '')
   end
   
   def has_dns?
