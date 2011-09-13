@@ -99,7 +99,7 @@ describe Server do
             File.should_receive(:chmod).with(0600, @path).and_return(true)
           end
 
-          it { @server.credentials.should == "-i /key/path -o StrictHostKeyChecking=no ubuntu@10.4.5.6" }
+          it { @server.credentials.should == "-i /key/path -o Port=22 -o StrictHostKeyChecking=no ubuntu@10.4.5.6" }
         end
 
         context "key file does not exist" do

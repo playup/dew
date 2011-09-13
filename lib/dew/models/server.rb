@@ -32,8 +32,12 @@ class Server < FogModel
     fog_object.tags['Username'] || 'ubuntu'
   end
 
+  def ssh_port
+    fog_object.tags['SSHPort'] || '22'
+  end
+
   def ssh
-    Gofer::Host.new(public_ip_address, username, :key_data => [File.read(Cloud.keyfile_path(key_name))], :paranoid => false, :quiet => true)
+    Gofer::Host.new(public_ip_address, username, :port => ssh_port, :key_data => [File.read(Cloud.keyfile_path(key_name))], :paranoid => false, :quiet => true)
   end
 
   def wait_until_ready ssh_timeout=THREE_MINUTES
@@ -73,7 +77,7 @@ class Server < FogModel
 
       sanitize_key_file(key_name, keyfile_path)
 
-      "-i #{keyfile_path} -o StrictHostKeyChecking=no #{username}@#{public_ip_address}"
+      "-i #{keyfile_path} -o Port=#{ssh_port} -o StrictHostKeyChecking=no #{username}@#{public_ip_address}"
     else
       Inform.warning("Server %{id} has no key and therefore can not be accessed.", :id => id)
       false
