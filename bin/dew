@@ -6,7 +6,7 @@ class DewCommand < DewBaseCommand
   option ['-a', '--account'], "ACCOUNT", "AWS account", :default => ENV['DEW_ACCOUNT'] || 'development'
   option ['-q', '--quiet'], :flag, "Quiet mode, disables logging", :default => false
   option ['-v', '--verbose'], :flag, "Verbose mode, print debug output", :default => ENV['DEW_VERBOSE']
-  option '--debug', :flag, "Show stacktraces on error", :default => false
+  option '--debug', :flag, "Show stacktraces on error", :default => ENV['DEW_DEBUG']
   option '--version', :flag, "Prints the dew version" do
     puts "dew version #{Dew::VERSION}"
     exit(0)
@@ -63,7 +63,7 @@ class DewCommand < DewBaseCommand
         raise
       else
         error_message += "(and/or run again with %{flag} flag, or %{env} in your environment)\n"
-        error_args.merge!(:flag => "--debug", :env => "AWS_DEBUG=1")
+        error_args.merge!(:flag => "--debug", :env => "DEW_DEBUG=1")
         Inform.error(error_message, error_args)
         Kernel.exit 1
       end
