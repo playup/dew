@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.2.7
+
+* Added DEW_DEBUG env variable
+* Bugfix for scp from_local to env
+
 ### v0.2.6
 
 * EC2 tag SSHPort now supported to allow for non-standard SSH/SCP commands.

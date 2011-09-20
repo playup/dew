@@ -107,11 +107,11 @@ class EnvironmentsCommand < Clamp::Command
 
     def execute
       if file1.include?(':')
-        direction = :to
+        direction = :to_local
         env_name, src_file = file1.split(':')
         dest_file = file2
       elsif file2.include?(':')
-        direction = :from
+        direction = :from_local
         src_file = file1
         env_name, dest_file = file2.split(':')
       else
@@ -130,7 +130,7 @@ class EnvironmentsCommand < Clamp::Command
         options << '-v' if verbose?
         options << "-l #{limit}" if limit
         options << "-P#{port}" if port
-        command = "scp #{options.join(' ')} #{args.join(' ')} #{direction == :to ? "#{[host, src_file].join(':')} #{dest_file}" : "#{[host, src_file].join(':')} #{dest_file}"}"
+        command = "scp #{options.join(' ')} #{args.join(' ')} #{direction == :to_local ? "#{[host, src_file].join(':')} #{dest_file}" : "#{src_file} #{[host, dest_file].join(':')}"}"
         Inform.debug("Running %{command}", :command => command)
         system command
       end
