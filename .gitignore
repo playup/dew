@@ -10,4 +10,3 @@ vendor
 *.gem
 Gemfile.lock
 pkg/*
-.rspec
