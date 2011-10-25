@@ -8,5 +8,4 @@ tmp
 pkg
 vendor
 *.gem
-Gemfile.lock
 pkg/*
