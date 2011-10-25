@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.3.0
+
+* Depend on Fog 1.0.0
+* Fix up a bunch of bits and pieces
+* Allow RDS size to be specified in Profile YAML ('storage' in rds section, in Gb)
+
 ### v0.2.7
 
 * Added DEW_DEBUG env variable

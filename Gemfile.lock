@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dew (0.2.7)
+    dew (0.3.0)
       clamp (~> 0.2.3)
       fog (~> 1.0.0)
       gofer (~> 0.2.5)
