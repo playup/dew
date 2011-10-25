@@ -371,5 +371,23 @@ EOF
     end
 
   end
+  
+  describe "#show_json" do
+  
+    let(:servers) { [mock(:dns_name => 'fish.com', :public_ip_address => '1.2.3.4'), mock(:dns_name => 'fish2.com', :public_ip_address => '1.2.3.5')] }
+    let(:output) { servers.map { |s| { 'public_dns' => s.dns_name, 'public_ip' => s.public_ip_address } } }
+    
+    before do
+      @environment.stub(:servers => servers)
+    end
+  
+    subject { @environment.show_json }
+  
+    it "should return the correct JSON" do
+      STDOUT.should_receive(:puts).with(JSON.pretty_generate(output))
+      subject
+    end
+  
+  end
 
 end
