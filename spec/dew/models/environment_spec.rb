@@ -100,7 +100,7 @@ describe Environment do
 
       describe "with an RDS specified in the profile" do
         before :each do
-          profile.stub(:has_rds? => true, :rds_size => 'db.m1.small')
+          profile.stub(:has_rds? => true, :rds_size => 'db.m1.small', :rds_storage_size => 5)
           @env.stub(:add_database => nil, :configure_servers_for_database => nil)
           Password.stub(:random => 'abcdef')
         end

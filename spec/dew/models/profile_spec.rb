@@ -37,12 +37,12 @@ describe Profile do
         }
       end
       
-      it { subject.ami.should == 'ami-ccf405a5' }
-      it { subject.count.should == 2 }
-      it { subject.size.should == 'c1.medium' }
-      it { subject.security_groups.should == %w{non_default} }
-      it { subject.keypair.should == 'id_revo' }
-      it { subject.username.should == 'myusername' }
+      its(:ami) { should == 'ami-ccf405a5' }
+      its(:count) { should == 2 }
+      its(:size) { should == 'c1.medium' }
+      its(:security_groups) { should == %w{non_default} }
+      its(:keypair) { should == 'id_revo' }
+      its(:username) { should == 'myusername' }
       
       it "should have a to_s" do
         subject.to_s.should == <<EOF
@@ -56,13 +56,13 @@ EOF
       end
     end
 
-    it "should default to 'ubuntu' as the username" do
-      subject.username.should == 'ubuntu'
+    context "defaults" do
+      its(:username) { should == 'ubuntu' }
     end
     
     describe "without an elb or RDS section" do
-      it { subject.has_elb?.should be_false }
-      it { subject.has_rds?.should be_false }
+      it { should_not have_elb }
+      it { should_not have_rds }
     end
     
     describe "with an elb section" do
@@ -74,11 +74,11 @@ EOF
         }
       end
       
-      it { subject.has_elb?.should be_true }
-      it { subject.elb_listener_ports.should == [80, 443] }
+      it { should have_elb }
+      its(:elb_listener_ports) { should == [80, 443] }
     end
     
-    describe "with an RDS section" do
+    describe "with an RDS section without a storage size" do
       let(:profile) do
         {
           'rds' => {
@@ -87,8 +87,26 @@ EOF
         }
       end
       
-      it { subject.has_rds?.should be_true }
-      it { subject.rds_size.should == 'db.m1.small' }
+      it { should have_rds }
+      its(:rds_size) { should == 'db.m1.small' }
+      its(:rds_storage_size) { should == Profile::DEFAULT_RDS_STORAGE_SIZE }
+    end
+
+    describe "with an RDS section with a storage size" do
+      let(:storage_size) { rand(24356) }
+
+      let(:profile) do
+        {
+          'rds' => {
+            'size' => 'db.m1.small',
+            'storage' => storage_size
+          }
+        }
+      end
+      
+      it { should have_rds }
+      its(:rds_size) { should == 'db.m1.small' }
+      its(:rds_storage_size) { should == storage_size }
     end
   end
 end

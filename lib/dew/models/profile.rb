@@ -4,9 +4,11 @@ class Profile
 
   attr_reader :profile_name
   attr_accessor :ami, :size, :security_groups, :keypair, :count
-  attr_accessor :rds_size, :elb_listener_ports, :username
+  attr_accessor :rds_size, :rds_storage_size, :elb_listener_ports, :username
 
   AWS_RESOURCES = YAML.load(File.read(File.join(File.dirname(__FILE__), '..', 'aws_resources.yaml')))
+
+  DEFAULT_RDS_STORAGE_SIZE = 5
 
   def self.read(profile_name)
     yaml = YAML.load_file(File.join(ENV['HOME'], '.dew', 'profiles', "#{profile_name}.yaml"))
@@ -25,6 +27,7 @@ class Profile
     end
     if yaml['rds']
       profile.rds_size = yaml['rds']['size']
+      profile.rds_storage_size = yaml['rds'].fetch('storage', DEFAULT_RDS_STORAGE_SIZE)
     end
     profile
   end
@@ -57,7 +60,7 @@ class Profile
       t << [ "#{count} instance#{'s' if count > 1}", "#{size.inspect} (#{self.class.size_to_s(size)})"]
       t << ['disk image', ami.inspect]
       t << ['load balancer', "listener ports: #{elb_listener_ports.inspect}"] if has_elb?
-      t << ['database', "#{rds_size.inspect} (#{AWS_RESOURCES['db_instance_types'][rds_size].inject(db_instance_str) { |res,(k,v)| res.gsub(/%\{#{k}\}/, v) } })"] if has_rds?
+      t << ['database', "#{rds_size.inspect} (#{rds_storage_size}Gb) (#{AWS_RESOURCES['db_instance_types'][rds_size].inject(db_instance_str) { |res,(k,v)| res.gsub(/%\{#{k}\}/, v) } })"] if has_rds?
       t << ['security groups', security_groups.inspect]
       t << ['keypair', keypair.inspect]
     }.to_s

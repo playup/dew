@@ -31,7 +31,7 @@ class Environment
 
     # Creating the database is the longest running task, so do that first.
     password = Password.random if profile.has_rds?
-    environment.add_database(profile.rds_size, 5, password) if profile.has_rds?
+    environment.add_database(profile.rds_size, profile.rds_storage_size, password) if profile.has_rds?
 
     (1..profile.count).each do
       environment.add_server(profile.ami, profile.size, profile.keypair, profile.security_groups, profile.username)
