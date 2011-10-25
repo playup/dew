@@ -18,12 +18,12 @@ Gem::Specification.new do |s|
   s.version     = Dew::VERSION
   s.platform    = Gem::Platform::RUBY
 
-  s.add_runtime_dependency("inform", "~> 0.0.4")
-  s.add_runtime_dependency("clamp", "~> 0.2.2")
-  s.add_runtime_dependency("fog", "~> 0.8.2")
+  s.add_runtime_dependency("inform", "~> 0.0.5")
+  s.add_runtime_dependency("clamp", "~> 0.2.3")
+  s.add_runtime_dependency("fog", "~> 1.0.0")
   s.add_runtime_dependency("gofer", "~> 0.2.5")
   s.add_runtime_dependency("highline", "~> 1.6.2")
-  s.add_runtime_dependency("terminal-table", "~> 1.4.2")
+  s.add_runtime_dependency("terminal-table", "~> 1.4.3")
   s.add_runtime_dependency("opensrs")
   s.add_runtime_dependency("nokogiri")
 
