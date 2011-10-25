@@ -12,14 +12,28 @@ describe Database do
   end
   
   describe ".create!" do
+    let(:id) { "id-#{rand(234)}" }
+    let(:flavor_id) { "flavor-#{rand(2345)}" }
+    let(:password) { "password-#{rand(9587)}" }
+    let(:storage_size) { rand(2354) }
+  
+    subject { Database.create!(id, flavor_id, storage_size, password) }
+  
     it "should ask Fog to create a new RDS with the provided name, size, username and password" do
-      rds.servers.should_receive(:create).with(hash_including(:id => id, :flavor_id => 'db.m1.small', :master_username => 'root', :password => 'password'))
-      Database.create!(id, 'db.m1.small', 'password')
+      rds.servers.should_receive(:create).with(
+        :engine => 'MySQL',
+        :master_username => 'root',
+        :id => id,
+        :flavor_id => flavor_id,
+        :password => password,
+        :allocated_storage => storage_size.to_s
+      )
+      
+      subject
     end
     
     it "should return a new Database object with an ID" do
-      database = Database.create!(id, 'b', 'd')
-      database.id.should == id
+      subject.id.should == id
     end
   end
   
@@ -38,7 +52,7 @@ describe Database do
   
   context "with a database created" do
     before :each do
-      @database = Database.create!(id, 'db.m1.small', 'password')
+      @database = Database.create!(id, 'db.m1.small', 5, 'password')
       fog_database.stub(:endpoint => {'Address' => '127.0.0.1'}, :master_username => 'root')
     end
     describe "db_environment_file" do

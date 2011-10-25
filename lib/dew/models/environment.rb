@@ -31,7 +31,7 @@ class Environment
 
     # Creating the database is the longest running task, so do that first.
     password = Password.random if profile.has_rds?
-    environment.add_database(profile.rds_size, password) if profile.has_rds?
+    environment.add_database(profile.rds_size, 5, password) if profile.has_rds?
 
     (1..profile.count).each do
       environment.add_server(profile.ami, profile.size, profile.keypair, profile.security_groups, profile.username)
@@ -150,10 +150,10 @@ class Environment
     end
   end
 
-  def add_database size, password
-    Inform.info "Adding Database %{name} of size %{size} with master password %{password}",
+  def add_database(size, storage_size, password)
+    Inform.info "Adding Database %{name} of size %{size} (storage = #{storage_size}Gb) with master password %{password}",
       :name => name, :size => size, :password => password do
-      @database = Database.create!(name, size, password)
+      @database = Database.create!(name, size, storage_size, password)
     end
   end
 

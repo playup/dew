@@ -106,7 +106,7 @@ describe Environment do
         end
 
         it "should add an RDS to the environment with the required size and a random password" do
-          @env.should_receive(:add_database).with('db.m1.small', 'abcdef')
+          @env.should_receive(:add_database).with('db.m1.small', 5, 'abcdef')
         end
 
         it "should ask the environment to update the database configuration on the servers" do
@@ -293,13 +293,15 @@ EOF
         Database.stub(:create! => database)
       end
 
+      let(:storage_size) { rand(234) }
+
       it "should create an RDS of the requested size, using the environment name and a random password" do
-        Database.should_receive(:create!).with(name, 'db.m1.small', 'password')
-        @environment.add_database 'db.m1.small', 'password'
+        Database.should_receive(:create!).with(name, 'db.m1.small', storage_size, 'password')
+        @environment.add_database 'db.m1.small', storage_size, 'password'
       end
 
       it "should make the database available on the 'database' accessor" do
-        @environment.add_database 'db.m1.small', 'password'
+        @environment.add_database 'db.m1.small', storage_size, 'password'
         @environment.database.should == database
       end
     end

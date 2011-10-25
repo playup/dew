@@ -1,12 +1,12 @@
 class Database < FogModel
 
-  def self.create! name, size, password
+  def self.create!(name, size, storage_size, password)
     new Cloud.rds.servers.create(
               :engine => 'MySQL',
               :master_username => 'root',
               :password => password,
               :id => name,
-              :allocated_storage => '5',
+              :allocated_storage => storage_size.to_s,
               :flavor_id => size
     )
   end
