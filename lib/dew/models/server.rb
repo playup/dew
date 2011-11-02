@@ -5,8 +5,24 @@ class Server < FogModel
  
   RUNNING_SERVER_STATES = %w{pending running}
 
-  def self.create! ami, size, keypair, groups
-    new(Cloud.compute.servers.create(:image_id => ami, :flavor_id => size, :key_name => keypair, :groups => groups))
+  def self.create!(options)
+    ami = options.fetch(:ami)
+    size = options.fetch(:size)
+    keypair = options.fetch(:keypair)
+    groups = options.fetch(:groups)
+    
+    Inform.info "Creating server using AMI %{ami} of size %{size}, keypair %{keypair} and security groups %{groups}",
+      :ami => ami, :size => size, :keypair => keypair, :groups => groups.join(',') do
+  
+      new(
+        Cloud.compute.servers.create(
+          :image_id => ami,
+          :flavor_id => size,
+          :key_name => keypair,
+          :groups => groups
+        )
+      )
+    end
   end
 
   def self.find tag_name, tag_value

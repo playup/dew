@@ -80,7 +80,13 @@ describe Environment do
         let(:profile_count) { 2 }
 
         it "should add two instances to that environment with the chosen AMI, size and keypair" do
-          @env.should_receive(:add_server).with(profile.ami, profile.size, profile.keypair, profile.security_groups, profile.username).twice
+          @env.should_receive(:add_server).with(
+            profile.username,
+            :ami => profile.ami, 
+            :size => profile.size,
+            :keypair => profile.keypair,
+            :groups => profile.security_groups
+          ).twice
         end
       end
 
@@ -216,19 +222,24 @@ EOF
   end
 
   describe :add_server do
+    let(:create_options) { mock('create options') }
+    let(:username) { 'username' }
+    
+    subject { @environment.add_server(username, create_options) }
+    
     before :each do
-      @args = 'ami', 'size', 'keypair', %w(non_default)
       Server.stub(:create!).and_return(server)
     end
 
     it "should create a Server from the provided ami, size and keypair" do
-      Server.should_receive(:create!).with(*@args)
-      @environment.add_server(*@args, 'username')
+      Server.should_receive(:create!).with(create_options)
+      subject
     end
 
     it "should add the Server to its servers array" do
-      @environment.add_server(*@args, 'username')
-      @environment.add_server(*@args, 'username')
+      # don't use subject here, is memoized
+      @environment.add_server(username, create_options)
+      @environment.add_server(username, create_options)
       @environment.servers.should == [server, server]
     end
 
@@ -236,15 +247,15 @@ EOF
       server.should_receive(:add_tag).with('Environment', name)
       server.should_receive(:add_tag).with('Creator', ENV['USER'])
       server.should_receive(:add_tag).with('Username', 'username')
-      @environment.add_server(*@args, 'username')
+      subject
     end
 
     it "should tag the server with an indexed name" do
       server.should_receive(:add_tag).with('Name', "#{name} 1")
-      @environment.add_server(*@args, 'username')
+      @environment.add_server('username', create_options)
 
       server.should_receive(:add_tag).with('Name', "#{name} 2")
-      @environment.add_server(*@args, 'username')
+      @environment.add_server('username', create_options)
     end
   end
 

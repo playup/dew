@@ -14,15 +14,31 @@ describe Server do
   end
 
   describe ".create!" do
+    let(:ami_name) { 'ami' }
+    let(:image_size) { 'size' }
+    let(:groups) { %w(non_default) }
+    
+    subject do
+      Server.create!(
+        :ami => ami_name,
+        :size => image_size,
+        :keypair => key_name,
+        :groups => groups
+      )
+    end
+    
     it "should ask Fog to create a new server with the provided AMI, size and keypair" do
-      compute.servers.should_receive(:create).with(:image_id => 'ami', :flavor_id => 'size', :key_name => key_name, :groups => %(non_default))
-      Server.create!('ami', 'size', key_name, %(non_default))
+      compute.servers.should_receive(:create).with(
+        :image_id => ami_name,
+        :flavor_id => image_size, 
+        :key_name => key_name, 
+        :groups => groups
+      )
+      
+      subject
     end
 
-    it "should return a new server object with an ID" do
-      server = Server.create!('ami', 'size', key_name, %(non_default))
-      server.id.should == id
-    end
+    its(:id) { should == id }
   end
 
   describe ".find" do
@@ -44,7 +60,7 @@ describe Server do
     let (:ssh) { double('SSH') }
 
     before :each do
-      @server = Server.create!('ami', 'size', key_name, %(non_default))
+      @server = Server.new(fog_server)
       Gofer::Host.stub(:new => ssh)
       Cloud.stub(:keyfile_path => '')
       File.stub(:read => nil)
