@@ -39,7 +39,8 @@ class Environment
         :ami => profile.ami,
         :size => profile.size,
         :keypair => profile.keypair,
-        :groups => profile.security_groups
+        :groups => profile.security_groups,
+        :disk_size => profile.instance_disk_size
       )
     end
   

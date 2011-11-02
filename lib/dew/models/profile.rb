@@ -5,7 +5,8 @@ class Profile
   attr_reader :profile_name
   attr_accessor :ami, :size, :security_groups, :keypair, :count
   attr_accessor :rds_size, :rds_storage_size, :elb_listener_ports, :username
-
+  attr_reader :instance_disk_size
+  
   AWS_RESOURCES = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'aws_resources.yaml'))
 
   DEFAULT_RDS_STORAGE_SIZE = 5
@@ -32,19 +33,20 @@ class Profile
 
   def initialize(profile_name, init_yaml = nil)
     @profile_name = profile_name
-    populate_from_yaml(init_yaml) if init_yaml
+    populate_from_yaml(Cloud.region, init_yaml) if init_yaml
   end
   
-  def populate_from_yaml(yaml)
+  def populate_from_yaml(region, yaml)
     @username = DEFAULT_USERNAME    # do we actually need this?  There are no instances...
   
     if yaml['instances']
-      @ami = yaml['instances']['amis'][Cloud.region]
+      @ami = yaml['instances'].fetch('amis', {})[region]
       @size = yaml['instances']['size']
       @security_groups = yaml['instances'].fetch('security-groups', 'default') #TODO is this fallback tested?
       @keypair = yaml['instances']['keypair']
       @count = yaml['instances']['count'].to_i
       @username = yaml['instances'].fetch('username', DEFAULT_USERNAME) #TODO is this fallback tested?
+      @instance_disk_size = yaml['instances'].fetch('disk-size', nil)
     end
     
     if yaml['elb']

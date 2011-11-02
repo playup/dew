@@ -23,22 +23,52 @@ describe Server do
         :ami => ami_name,
         :size => image_size,
         :keypair => key_name,
-        :groups => groups
+        :groups => groups,
+        :disk_size => disk_size
       )
     end
     
-    it "should ask Fog to create a new server with the provided AMI, size and keypair" do
-      compute.servers.should_receive(:create).with(
-        :image_id => ami_name,
-        :flavor_id => image_size, 
-        :key_name => key_name, 
-        :groups => groups
-      )
+    context "with a disk size" do
+      let(:disk_size) { rand(2345) }
       
-      subject
+      it "should ask Fog to create a new server with the provided AMI, size and keypair and disk size" do
+        compute.servers.should_receive(:create).with(
+          :image_id => ami_name,
+          :flavor_id => image_size, 
+          :key_name => key_name, 
+          :groups => groups,
+          :block_device_mapping => [
+            {
+              'DeviceName' => '/dev/sda1',
+              'Ebs.VolumeSize' => disk_size.to_s
+            }
+          ]
+        )
+        
+        subject
+      end
+
+      its(:id) { should == id }
+      
     end
 
-    its(:id) { should == id }
+    context "without a disk size" do
+      let(:disk_size) { nil }
+      
+      it "should ask Fog to create a new server with the provided AMI, size and keypair" do
+        compute.servers.should_receive(:create).with(
+          :image_id => ami_name,
+          :flavor_id => image_size, 
+          :key_name => key_name, 
+          :groups => groups
+        )
+        
+        subject
+      end
+
+      its(:id) { should == id }
+      
+    end
   end
 
   describe ".find" do

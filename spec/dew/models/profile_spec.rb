@@ -109,4 +109,24 @@ EOF
       its(:rds_storage_size) { should == storage_size }
     end
   end
+  
+  describe "#populate_from_yaml" do
+    
+    subject { x = Profile.new('blah'); x.populate_from_yaml('region', yaml); x }
+    
+    describe "instance_disk_size" do
+  
+      context "with" do      
+        let(:instance_disk_size) { rand(235) }
+        let(:yaml) { { 'instances' => { 'disk-size' => instance_disk_size } } }  
+        its(:instance_disk_size) { should == instance_disk_size }
+      end
+      
+      context "without" do
+        let(:yaml) { { 'instances' => { } } }  
+        its(:instance_disk_size) { should == nil }      
+      end
+    
+    end
+  end
 end

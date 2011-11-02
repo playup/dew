@@ -10,18 +10,30 @@ class Server < FogModel
     size = options.fetch(:size)
     keypair = options.fetch(:keypair)
     groups = options.fetch(:groups)
+    disk_size = options.fetch(:disk_size, nil)
     
     Inform.info "Creating server using AMI %{ami} of size %{size}, keypair %{keypair} and security groups %{groups}",
       :ami => ami, :size => size, :keypair => keypair, :groups => groups.join(',') do
   
-      new(
-        Cloud.compute.servers.create(
-          :image_id => ami,
-          :flavor_id => size,
-          :key_name => keypair,
-          :groups => groups
+      server_options = {
+        :image_id => ami,
+        :flavor_id => size,
+        :key_name => keypair,
+        :groups => groups      
+      }
+      
+      if disk_size
+        server_options.merge!(
+          :block_device_mapping => [
+            {
+              'DeviceName' => '/dev/sda1',
+              'Ebs.VolumeSize' => disk_size.to_s
+            }
+          ]        
         )
-      )
+      end
+  
+      new(Cloud.compute.servers.create(server_options))
     end
   end
 

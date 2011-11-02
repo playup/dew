@@ -17,7 +17,8 @@ describe Environment do
     double('Profile',
       :ami => 'ami-12345', :size => 'm1.large',
       :keypair => 'devops', :count => profile_count,
-      :has_rds? => false, :has_elb? => false
+      :has_rds? => false, :has_elb? => false,
+      :instance_disk_size => rand(234)
     )
   end
 
@@ -51,7 +52,7 @@ describe Environment do
 
   describe ".create" do
     let (:security_groups) { %w(non_default) }
-    let(:profile) { double(:profile, :username => 'username', :keypair => 'default', :security_groups => security_groups, :ami => 'i-1234', :has_rds? => false, :has_elb? => false, :count => 2, :size => 'small' ) }
+    let(:profile) { double(:profile, :username => 'username', :keypair => 'default', :security_groups => security_groups, :ami => 'i-1234', :has_rds? => false, :has_elb? => false, :count => 2, :size => 'small', :instance_disk_size => rand(2334) ) }
 
     context "when environment name is invalid" do
       it "should raise an error" do
@@ -85,7 +86,8 @@ describe Environment do
             :ami => profile.ami, 
             :size => profile.size,
             :keypair => profile.keypair,
-            :groups => profile.security_groups
+            :groups => profile.security_groups,
+            :disk_size => profile.instance_disk_size
           ).twice
         end
       end
