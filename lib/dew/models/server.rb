@@ -1,8 +1,8 @@
 class Server < FogModel
-  TEN_SECONDS = 10
-  SIXTY_SECONDS = 60
-  TWO_MINUTES = 120
-  THREE_MINUTES = 180
+  TAG_CREATION_TIMEOUT = 60
+  AMI_RECOGNITION_TIMEOUT = 60
+  DEFAULT_SSH_CONNECTION_TIMEOUT = 180
+ 
   RUNNING_SERVER_STATES = %w{pending running}
 
   def self.create! ami, size, keypair, groups
@@ -18,9 +18,9 @@ class Server < FogModel
   end
 
   def add_tag key, val
-    try_for(SIXTY_SECONDS) {
+    try_for(TAG_CREATION_TIMEOUT) do
       Cloud.compute.tags.create(:resource_id => id, :key => key, :value => val)
-    }
+    end
   end
 
   def configure_for_database database, password
@@ -40,7 +40,7 @@ class Server < FogModel
     Gofer::Host.new(public_ip_address, username, :port => ssh_port, :key_data => [File.read(Cloud.keyfile_path(key_name))], :paranoid => false, :quiet => true)
   end
 
-  def wait_until_ready ssh_timeout=THREE_MINUTES
+  def wait_until_ready ssh_timeout=DEFAULT_SSH_CONNECTION_TIMEOUT
     super()
     Inform.debug("%{id} online at %{ip}, waiting for SSH connection...", :id => id, :ip => public_ip_address)
     wait_for_ssh ssh_timeout
@@ -52,7 +52,7 @@ class Server < FogModel
 
     Inform.debug("Created image at %{id}, waiting for AWS to recognize it...", :id => image_id)
     # Sometimes takes a while for AWS to realise there's a new image...
-    image = Timeout::timeout(SIXTY_SECONDS) do
+    image = Timeout::timeout(AMI_RECOGNITION_TIMEOUT) do
       image = nil
       while image == nil
         image = Cloud.compute.images.get(image_id)
