@@ -2,14 +2,22 @@ require 'yaml'
 
 class Account
 
+  def initialize(yaml)
+    @yaml = yaml
+  end
+
   def self.read(account_name)
-    Account.new YAML.load File.read File.join [ ENV['HOME'], '.dew', 'accounts', "#{account_name}.yaml" ]
+    Account.new(YAML.load_file(account_path(account_name)))
   end
 
   def self.user_ids
-    Dir[File.join(ENV['HOME'], '.dew', 'accounts', '*.yaml')].map do |filename|
-      Account.read(File.basename(filename).gsub(/.yaml$/, '')).aws_user_id
+    Dir[account_path('*')].map do |filename|
+      read(File.basename(filename, '.yaml')).aws_user_id
     end
+  end
+
+  def self.account_path(account_name)
+    File.join(ENV['HOME'], '.dew', 'accounts', "#{account_name}.yaml")
   end
 
   def aws_access_key_id
@@ -36,7 +44,4 @@ class Account
     @yaml['dns']['domain']
   end
   
-  def initialize(yaml)
-    @yaml = yaml
-  end
 end

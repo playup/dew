@@ -2,28 +2,31 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
 
 describe Account do
 
-  describe :initialize do
+  describe '::read' do
     it "should look for the named account file in the ~/.dew/accounts dir" do
       name = 'a_development_name'
-      File.should_receive(:read).with("#{ENV['HOME']}/.dew/accounts/#{name}.yaml").and_return("---")
+      YAML.should_receive(:load_file).with("#{ENV['HOME']}/.dew/accounts/#{name}.yaml").and_return({})
       Account.read(name)
     end
   end
 
   describe "parsing yaml" do
     before :each do
-      File.stub(:read).and_return(yaml)
+      YAML.stub(:load_file).and_return(yaml)
     end
 
     subject { Account.read('foo') }
 
     describe "with an aws section" do
-      let (:yaml) {
-        "aws:
-          user_id: 9999-3333-2222
-          access_key_id: foo
-          secret_access_key: bar"
-      }
+      let (:yaml) do
+        { 
+          'aws' => {
+            'user_id' => '9999-3333-2222',
+            'access_key_id' => 'foo',
+            'secret_access_key' => 'bar'
+          }
+        }
+      end
 
       it "should have a user_id stripped of dashes" do
         subject.aws_user_id.should == '999933332222'
@@ -35,16 +38,18 @@ describe Account do
     end
 
     describe "with a DNS section" do
-      let (:yaml) {
-        "
-        dns:
-          domain: mydomain.com
-          key: a1b2c3d4e5
-        "
-      }
-      it { subject.has_dns?.should be_true }
-      it { subject.dns_key.should == 'a1b2c3d4e5' }
-      it { subject.dns_domain.should == 'mydomain.com' }
+      let (:yaml) do
+        {
+          'dns' => {
+            'domain' => 'mydomain.com',
+            'key' => 'a1b2c3d4e5'
+          }
+        }
+      end
+      
+      it { subject.should have_dns }
+      its(:dns_key) { should == 'a1b2c3d4e5' }
+      its(:dns_domain) { should == 'mydomain.com' }
     end
   end
   
