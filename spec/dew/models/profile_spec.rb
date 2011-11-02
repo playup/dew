@@ -46,18 +46,18 @@ describe Profile do
       
       it "should have a to_s" do
         subject.to_s.should == <<EOF
-+-----------------+----------------------------------------------------------------------------------------------------+
-| 2 instances     | "c1.medium" (1.7 GB memory, 5 ECUs processor, 350 GB storage, 32-bit platform, ?? I/O performance) |
-| disk image      | "ami-ccf405a5"                                                                                     |
-| security groups | ["non_default"]                                                                                    |
-| keypair         | "id_revo"                                                                                          |
-+-----------------+----------------------------------------------------------------------------------------------------+
++-----------------+--------------------------------------------------------------------------------+
+| 2 instances     | "c1.medium" (1.7 GB memory, 5 ECUs processor, 350 GB storage, 32-bit platform) |
+| disk image      | "ami-ccf405a5"                                                                 |
+| security groups | ["non_default"]                                                                |
+| keypair         | "id_revo"                                                                      |
++-----------------+--------------------------------------------------------------------------------+
 EOF
       end
     end
 
     context "defaults" do
-      its(:username) { should == 'ubuntu' }
+      its(:username) { should == Profile::DEFAULT_USERNAME }
     end
     
     describe "without an elb or RDS section" do

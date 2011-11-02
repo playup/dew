@@ -6,30 +6,20 @@ class Profile
   attr_accessor :ami, :size, :security_groups, :keypair, :count
   attr_accessor :rds_size, :rds_storage_size, :elb_listener_ports, :username
 
-  AWS_RESOURCES = YAML.load(File.read(File.join(File.dirname(__FILE__), '..', 'aws_resources.yaml')))
+  AWS_RESOURCES = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'aws_resources.yaml'))
 
   DEFAULT_RDS_STORAGE_SIZE = 5
-
+  DEFAULT_USERNAME = 'ubuntu'
+  
   def self.read(profile_name)
-    yaml = YAML.load_file(File.join(ENV['HOME'], '.dew', 'profiles', "#{profile_name}.yaml"))
-    profile = new(profile_name)
-    profile.username = 'ubuntu'
-    if yaml['instances']
-      profile.ami = yaml['instances']['amis'][Cloud.region]
-      profile.size = yaml['instances']['size']
-      profile.security_groups = yaml['instances']['security-groups'] || ['default'] #XXX is this fallback tested?
-      profile.keypair = yaml['instances']['keypair']
-      profile.count = yaml['instances']['count'].to_i
-      profile.username = yaml['instances']['username'] if yaml['instances'].include?('username')
-    end
-    if yaml['elb']
-      profile.elb_listener_ports = yaml['elb']['listener_ports']
-    end
-    if yaml['rds']
-      profile.rds_size = yaml['rds']['size']
-      profile.rds_storage_size = yaml['rds'].fetch('storage', DEFAULT_RDS_STORAGE_SIZE)
-    end
-    profile
+    new(
+      profile_name,
+      YAML.load_file(profile_path(profile_name))
+    )
+  end
+  
+  def self.profile_path(profile_name)
+    File.join(ENV['HOME'], '.dew', 'profiles', "#{profile_name}.yaml")
   end
 
   def has_elb?
@@ -40,18 +30,39 @@ class Profile
     rds_size != nil
   end
 
-  def initialize(profile_name)
+  def initialize(profile_name, init_yaml = nil)
     @profile_name = profile_name
-    # :ami, :size, :security_groups, :keypair, :count
-    # :rds_size, :elb_listener_ports
+    populate_from_yaml(init_yaml) if init_yaml
   end
+  
+  def populate_from_yaml(yaml)
+    @username = DEFAULT_USERNAME    # do we actually need this?  There are no instances...
+  
+    if yaml['instances']
+      @ami = yaml['instances']['amis'][Cloud.region]
+      @size = yaml['instances']['size']
+      @security_groups = yaml['instances'].fetch('security-groups', 'default') #TODO is this fallback tested?
+      @keypair = yaml['instances']['keypair']
+      @count = yaml['instances']['count'].to_i
+      @username = yaml['instances'].fetch('username', DEFAULT_USERNAME) #TODO is this fallback tested?
+    end
+    
+    if yaml['elb']
+      @elb_listener_ports = yaml['elb']['listener_ports']
+    end
+    
+    if yaml['rds']
+      @rds_size = yaml['rds']['size']
+      @rds_storage_size = yaml['rds'].fetch('storage', DEFAULT_RDS_STORAGE_SIZE)
+    end  
+  end
+  
+  TO_STRING_TEMPLATE = "%{memory} GB memory, %{processor} ECUs processor, %{storage} GB storage, %{platform}-bit platform"
 
   def self.size_to_s(size)
-    #instance_str = "%{memory} memory, %{processor} processor, %{storage} storage, %{platform} platform, %{io_performance} I/O performance"
-    instance_str = "%{memory} GB memory, %{processor} ECUs processor, %{storage} GB storage, %{platform}-bit platform, %{io_performance} I/O performance"
     flavor = Cloud.compute.flavors.detect { |f| f.id == size }
-    instance_hash = { :memory => flavor.ram.to_s, :processor => flavor.cores.to_s, :storage => flavor.disk.to_s, :platform => flavor.bits.to_s, :io_performance => '??' }
-    instance_hash.inject(instance_str) { |res,(k,v)| res.gsub(/%\{#{k}\}/, v) }
+    instance_hash = { :memory => flavor.ram.to_s, :processor => flavor.cores.to_s, :storage => flavor.disk.to_s, :platform => flavor.bits.to_s }
+    instance_hash.inject(TO_STRING_TEMPLATE) { |res,(k,v)| res.gsub(/%\{#{k}\}/, v) }
   end
 
   def to_s
