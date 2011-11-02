@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
+require 'spec_helper'
 
 describe FogModel do
   let (:fog_object) { double('Fog Object', :id => 'i-12345') }
