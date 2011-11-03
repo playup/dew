@@ -5,7 +5,7 @@ class Environment
 
   attr_reader :name, :servers, :database
 
-  def initialize name, servers=[], database=nil
+  def initialize(name, servers=[], database=nil)
     @name = name
     @servers = servers
     @database = database
@@ -47,8 +47,10 @@ class Environment
     environment.add_elb(profile.elb_listener_ports) if profile.has_elb?
   
     environment.wait_until_ready
-
+    
+    environment.resize_disks if profile.instance_disk_size?
     environment.configure_servers_for_database password if profile.has_rds?
+    
     Inform.info "Environment %{name} ready!", :name => name
     environment
   end
@@ -188,6 +190,12 @@ class Environment
         Inform.debug "%{id}", :id => server.id
         server.configure_for_database(database, password)
       end
+    end
+  end
+
+  def resize_disks
+    Inform.info "Resizing disks on servers" do
+      servers.each { |s| s.resize_disk }
     end
   end
 

@@ -154,7 +154,7 @@ describe Server do
             File.should_receive(:stat).with(@path).and_raise(Errno::ENOENT)
           end
 
-          it { lambda { @server.credentials }.should raise_error %r{Can't find keyfile} }
+          it { lambda { @server.credentials }.should raise_error /Can't find keyfile/ }
         end
       end
     end
@@ -242,5 +242,24 @@ describe Server do
       end
 
     end
+  end
+  
+  describe "#resize_disk" do
+  
+    let(:cloud_server) { mock(:public_ip_address => '33.33.33.33', :tags => {}) }
+    let(:server) { Server.new(cloud_server) }
+    let(:ssh) { mock }
+    
+    before do
+      server.stub(:ssh => ssh)
+    end
+  
+    subject { server.resize_disk }
+    
+    it "should run resize2fs on the box" do
+      server.ssh.should_receive(:run).with('sudo resize2fs -p /dev/sda1')
+      subject
+    end
+  
   end
 end

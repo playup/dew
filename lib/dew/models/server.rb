@@ -55,6 +55,10 @@ class Server < FogModel
     ssh.write(database.db_environment_file(password), '/tmp/envfile')
     ssh.run('sudo mv /tmp/envfile /etc/environment')
   end
+  
+  def resize_disk
+    ssh.run('sudo resize2fs -p /dev/sda1')
+  end
 
   def username
     fog_object.tags['Username'] || 'ubuntu'

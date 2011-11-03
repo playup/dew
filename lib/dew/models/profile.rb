@@ -78,4 +78,8 @@ class Profile
       t << ['keypair', keypair.inspect]
     }.to_s
   end
+  
+  def instance_disk_size?
+    !!@instance_disk_size
+  end
 end

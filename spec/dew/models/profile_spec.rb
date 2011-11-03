@@ -118,12 +118,16 @@ EOF
   
       context "with" do      
         let(:instance_disk_size) { rand(235) }
-        let(:yaml) { { 'instances' => { 'disk-size' => instance_disk_size } } }  
+        let(:yaml) { { 'instances' => { 'disk-size' => instance_disk_size } } }
+        
+        it { should be_instance_disk_size }
         its(:instance_disk_size) { should == instance_disk_size }
       end
       
       context "without" do
         let(:yaml) { { 'instances' => { } } }  
+
+        it { should_not be_instance_disk_size }
         its(:instance_disk_size) { should == nil }      
       end
     
