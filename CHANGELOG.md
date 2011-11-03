@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.4.0
+
+* Allow creation of EBS backed instances of varying disk size ('disk-size' in instances section, in Gb)
+* Some code cleanup
+
 ### v0.3.0
 
 * Depend on Fog 1.0.0
