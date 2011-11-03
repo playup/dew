@@ -42,7 +42,7 @@ class Profile
     if yaml['instances']
       @ami = yaml['instances'].fetch('amis', {})[region]
       @size = yaml['instances']['size']
-      @security_groups = yaml['instances'].fetch('security-groups', 'default') #TODO is this fallback tested?
+      @security_groups = yaml['instances'].fetch('security-groups', ['default']) #TODO is this fallback tested?
       @keypair = yaml['instances']['keypair']
       @count = yaml['instances']['count'].to_i
       @username = yaml['instances'].fetch('username', DEFAULT_USERNAME) #TODO is this fallback tested?
