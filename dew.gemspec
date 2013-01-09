@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency("inform", "~> 0.0.5")
   s.add_runtime_dependency("clamp", "~> 0.2.3")
-  s.add_runtime_dependency("fog", "~> 1.1.2")
+  s.add_runtime_dependency("fog", ">= 1.1.2","< 1.9")
   s.add_runtime_dependency("gofer", "~> 0.2.5")
   s.add_runtime_dependency("highline", "~> 1.6.2")
   s.add_runtime_dependency("terminal-table", "~> 1.4.3")
