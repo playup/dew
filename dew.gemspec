@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency("opensrs")
   s.add_runtime_dependency("nokogiri")
 
-  s.add_development_dependency("rake", "~> 0.8.7")
+  s.add_development_dependency("rake", "~> 13.0.1")
   s.add_development_dependency("rspec", "~> 2.6.0")
   s.add_development_dependency("cucumber", "~> 0.10.3")
   s.add_development_dependency("simplecov", "~> 0.4.0")
