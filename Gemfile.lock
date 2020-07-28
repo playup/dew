@@ -48,7 +48,7 @@ GEM
       net-ssh (>= 2.0.23)
     highline (1.6.15)
     inform (0.0.6)
-    json (1.6.1)
+    json (2.3.1)
     libxml-ruby (2.1.2)
     mime-types (1.19)
     multi_json (1.5.0)
